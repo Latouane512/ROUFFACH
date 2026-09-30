@@ -1,5 +1,13 @@
 #  Modélisation Hydrologique et Analyse des Risques de Ruissellement (Bassin du Hohrain, Rouffach)
 
+![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=Leaflet&logoColor=white)
+![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
+![QGIS](https://img.shields.io/badge/QGIS-589632?style=for-the-badge&logo=QGIS&logoColor=white)
+
 Ce dépôt GitHub regroupe les scripts et les chaînes de traitement géomatique et numérique développés dans le cadre de l'étude hydrologique du **bassin versant viticole du Hohrain (Rouffach, Haut-Rhin)**. L'objectif est d'évaluer la vulnérabilité du bassin face aux crues torrentielles, de tester la robustesse du bassin de rétention aval (1 500 m³) et de proposer des mesures d'aménagement par Solutions Fondées sur la Nature (SFN).
 
 ---
