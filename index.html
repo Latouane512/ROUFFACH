@@ -13,10 +13,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Bibliothèques pour lire et afficher du TIFF (GeoTIFF) dans Leaflet -->
-    <script src="https://unpkg.com/georaster"></script>
-    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
-
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -181,22 +177,19 @@
                     <span class="group-chevron">&#9654;</span>
                 </div>
                 <div class="layer-group-body">
-                    <!-- Nouvel item: Communes -->
+                    <!-- Communes -->
                     <div class="layer-item">
                         <div class="layer-swatch" style="border: 2px solid #34495e; background: rgba(52, 73, 94, 0.2);"></div>
                         <input type="checkbox" id="check-communes">
                         <label for="check-communes">Limites communales</label>
                     </div>
-                    <div class="layer-item">
-                        <div class="layer-swatch" style="background:#bdc3c7;"></div>
-                        <input type="checkbox" id="check-mnt">
-                        <label for="check-mnt">Modèle Numérique de Terrain (MNT LiDAR)</label>
-                    </div>
+                    <!-- OCS -->
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#27ae60;"></div>
                         <input type="checkbox" id="check-ocs">
                         <label for="check-ocs">Occupation du Sol (OCS)</label>
                     </div>
+                    <!-- SCS -->
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#8e44ad;"></div>
                         <input type="checkbox" id="check-scs">
@@ -208,27 +201,8 @@
 
         <!-- VUE 2 : RUISSELLEMENT -->
         <div id="ruissellement-layers" style="display:none;">
-            <div class="layer-group open">
-                <div class="layer-group-header" onclick="toggleGroup(this)">
-                    <span class="group-title">Cartographie dynamique (CN)</span>
-                    <span class="group-chevron">&#9654;</span>
-                </div>
-                <div class="layer-group-body">
-                    <div class="layer-item">
-                        <div class="layer-swatch" style="background:#f39c12;"></div>
-                        <input type="checkbox" id="check-cn2">
-                        <label for="check-cn2">Curve Number (AMC II - Normal)</label>
-                    </div>
-                    <div class="layer-item">
-                        <div class="layer-swatch" style="background:#d35400;"></div>
-                        <input type="checkbox" id="check-cn3">
-                        <label for="check-cn3">Curve Number (AMC III - Saturé)</label>
-                    </div>
-                </div>
-            </div>
-
             <!-- GROUPE : Axes AMC II -->
-            <div class="layer-group">
+            <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
                     <span class="group-title">Axes ruissellement (AMC II)</span>
                     <span class="group-chevron">&#9654;</span>
@@ -257,7 +231,7 @@
             </div>
 
             <!-- GROUPE : Axes AMC III -->
-            <div class="layer-group">
+            <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
                     <span class="group-title">Axes ruissellement (AMC III)</span>
                     <span class="group-chevron">&#9654;</span>
@@ -349,65 +323,7 @@
     }).addTo(map);
 
     // ==========================================
-    // 1. GESTION DU MNT (TIFF)
-    // ==========================================
-    let mntLayer = null;
-
-    document.getElementById('check-mnt').addEventListener('change', function(e) {
-        if (this.checked) {
-            if (mntLayer) {
-                mntLayer.addTo(map);
-            } else {
-                fetch('MNT_LiDAR.tif')
-                    .then(response => response.arrayBuffer())
-                    .then(arrayBuffer => parseGeoraster(arrayBuffer))
-                    .then(georaster => {
-                        mntLayer = new GeoRasterLayer({
-                            georaster: georaster,
-                            opacity: 0.7,
-                            resolution: 256
-                        });
-                        mntLayer.addTo(map);
-                    })
-                    .catch(error => console.error('Erreur lors du chargement du MNT TIFF:', error));
-            }
-        } else {
-            if (mntLayer && map.hasLayer(mntLayer)) {
-                map.removeLayer(mntLayer);
-            }
-        }
-    });
-
-    // ==========================================
-    // 2. GESTION DES CURVE NUMBER (TIFF)
-    // ==========================================
-    let cn2Layer = null;
-    let cn3Layer = null;
-
-    document.getElementById('check-cn2').addEventListener('change', function(e) {
-        if (this.checked) {
-            if (cn2Layer) { cn2Layer.addTo(map); } else {
-                fetch('CN_AMC2.tif').then(r => r.arrayBuffer()).then(b => parseGeoraster(b)).then(g => {
-                    cn2Layer = new GeoRasterLayer({ georaster: g, opacity: 0.7, resolution: 256 });
-                    cn2Layer.addTo(map);
-                }).catch(e => console.error(e));
-            }
-        } else { if (cn2Layer && map.hasLayer(cn2Layer)) map.removeLayer(cn2Layer); }
-    });
-
-    document.getElementById('check-cn3').addEventListener('change', function(e) {
-        if (this.checked) {
-            if (cn3Layer) { cn3Layer.addTo(map); } else {
-                fetch('CN_AMC3.tif').then(r => r.arrayBuffer()).then(b => parseGeoraster(b)).then(g => {
-                    cn3Layer = new GeoRasterLayer({ georaster: g, opacity: 0.7, resolution: 256 });
-                    cn3Layer.addTo(map);
-                }).catch(e => console.error(e));
-            }
-        } else { if (cn3Layer && map.hasLayer(cn3Layer)) map.removeLayer(cn3Layer); }
-    });
-
-    // ==========================================
-    // 3. GESTION DES COUCHES GEOJSON (Communes, OCS, SCS, SFN)
+    // 1. GESTION DES COUCHES GEOJSON (Communes, OCS, SCS, SFN)
     // ==========================================
     const autresCouchesConfig = {
         'check-communes': { file: 'Communes.geojson', color: '#34495e', isPoint: false, weight: 2, fillOpacity: 0.1 },
@@ -460,7 +376,7 @@
     });
 
     // ==========================================
-    // 4. GESTION DES 24 AXES DE RUISSELLEMENT (GEOJSON)
+    // 2. GESTION DES 24 AXES DE RUISSELLEMENT (GEOJSON)
     // ==========================================
     const axesCheckboxes = document.querySelectorAll('.grid-checkboxes input[type="checkbox"]');
     const ruissellementLayers = {}; 
@@ -496,7 +412,7 @@
     });
 
     // ==========================================
-    // 5. GESTION DES VUES (ONGLETS) ET DE L'INTERFACE
+    // 3. GESTION DES VUES (ONGLETS) ET DE L'INTERFACE
     // ==========================================
     function switchView(view) {
         // MAJ des onglets
@@ -516,7 +432,6 @@
                 <p class="rp-description">L'étude du bassin versant du Hohrain repose sur la constitution d'un socle de données de haute précision.</p>
                 <ul style="font-size: 12px; margin-top: 10px; padding-left: 15px; color: #444; line-height: 1.6;">
                     <li><b>Limites communales :</b> Permet de repérer le zonage administratif et l'emprise territoriale.</li>
-                    <li><b>MNT LiDAR 2m :</b> Permet de s'affranchir du micro-relief et d'identifier avec précision la topographie réelle des versants viticoles.</li>
                     <li><b>Occupation du Sol :</b> Cartographie fine différenciant les cultures, vignes, et milieux naturels.</li>
                     <li><b>Groupes Hydrologiques (SCS) :</b> Identification des sols de types B, C et D pour évaluer la capacité d'infiltration face aux événements pluvieux.</li>
                 </ul>
@@ -524,10 +439,10 @@
         } else if (view === 'ruissellement') {
             panelContent.innerHTML = `
                 <h3 style="font-size: 13px; margin-bottom: 10px;">Dynamique des écoulements</h3>
-                <p class="rp-description">Comparaison spatiale de la genèse du ruissellement selon l'état hydrique du sol et les axes d'accumulation.</p>
+                <p class="rp-description">Analyse spatiale du ruissellement selon l'état hydrique du sol (Normal vs Saturé) et les axes d'accumulation.</p>
                 <div style="margin-top: 15px; padding: 12px; background: var(--color-primary-light); border-radius: 8px;">
-                    <b style="font-size: 12px; color: var(--color-primary);">Méthode Road Burning & Ruissellement</b>
-                    <p style="font-size: 11px; margin-top: 5px; color: #444;">Le tracé des axes de ruissellement préférentiels a été affiné via un forçage du MNT (intégration du réseau routier et des talus) afin de refléter fidèlement l'écoulement réel des eaux pluviales vers l'exutoire. Explorez les différents scénarios de précipitation (Q2 à Q100) en activant les calques.</p>
+                    <b style="font-size: 12px; color: var(--color-primary);">Méthode Road Burning</b>
+                    <p style="font-size: 11px; margin-top: 5px; color: #444;">Le tracé des axes préférentiels a été affiné via un forçage du MNT (intégration du réseau routier et des talus) afin de refléter fidèlement l'écoulement réel des eaux pluviales. Explorez les différents scénarios de précipitation (Q2 à Q100) en activant les calques.</p>
                 </div>
             `;
         } else if (view === 'sfn') {
