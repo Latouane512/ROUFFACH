@@ -109,7 +109,7 @@
         .layer-item:hover { background: var(--color-bg); }
         .layer-item label { flex: 1; font-size: 12px; color: var(--color-text); cursor: pointer; line-height: 1.3; }
         .layer-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--color-primary); cursor: pointer; }
-        .layer-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+        .layer-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; box-sizing: border-box; }
 
         /* Classes pour la grille compacte des Q2, Q5, etc. */
         .sub-group-title { padding: 6px 14px 4px 36px; font-size: 11px; font-weight: 600; color: var(--color-primary); }
@@ -181,10 +181,16 @@
                     <span class="group-chevron">&#9654;</span>
                 </div>
                 <div class="layer-group-body">
+                    <!-- Nouvel item: Communes -->
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="border: 2px solid #34495e; background: rgba(52, 73, 94, 0.2);"></div>
+                        <input type="checkbox" id="check-communes">
+                        <label for="check-communes">Limites communales</label>
+                    </div>
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#bdc3c7;"></div>
                         <input type="checkbox" id="check-mnt">
-                        <label for="check-mnt">Modèle Numérique de Terrain (MNT LiDAR 2m)</label>
+                        <label for="check-mnt">Modèle Numérique de Terrain (MNT LiDAR)</label>
                     </div>
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#27ae60;"></div>
@@ -221,7 +227,7 @@
                 </div>
             </div>
 
-            <!-- NOUVEAU GROUPE : Axes AMC II -->
+            <!-- GROUPE : Axes AMC II -->
             <div class="layer-group">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
                     <span class="group-title">Axes ruissellement (AMC II)</span>
@@ -250,7 +256,7 @@
                 </div>
             </div>
 
-            <!-- NOUVEAU GROUPE : Axes AMC III -->
+            <!-- GROUPE : Axes AMC III -->
             <div class="layer-group">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
                     <span class="group-title">Axes ruissellement (AMC III)</span>
@@ -378,61 +384,36 @@
     let cn2Layer = null;
     let cn3Layer = null;
 
-    // Chargement CN AMC II
     document.getElementById('check-cn2').addEventListener('change', function(e) {
         if (this.checked) {
-            if (cn2Layer) {
-                cn2Layer.addTo(map);
-            } else {
-                fetch('CN_AMC2.tif')
-                    .then(response => response.arrayBuffer())
-                    .then(arrayBuffer => parseGeoraster(arrayBuffer))
-                    .then(georaster => {
-                        cn2Layer = new GeoRasterLayer({
-                            georaster: georaster,
-                            opacity: 0.7,
-                            resolution: 256
-                        });
-                        cn2Layer.addTo(map);
-                    })
-                    .catch(error => console.error('Erreur lors du chargement de CN AMC2 TIFF:', error));
+            if (cn2Layer) { cn2Layer.addTo(map); } else {
+                fetch('CN_AMC2.tif').then(r => r.arrayBuffer()).then(b => parseGeoraster(b)).then(g => {
+                    cn2Layer = new GeoRasterLayer({ georaster: g, opacity: 0.7, resolution: 256 });
+                    cn2Layer.addTo(map);
+                }).catch(e => console.error(e));
             }
-        } else {
-            if (cn2Layer && map.hasLayer(cn2Layer)) map.removeLayer(cn2Layer);
-        }
+        } else { if (cn2Layer && map.hasLayer(cn2Layer)) map.removeLayer(cn2Layer); }
     });
 
-    // Chargement CN AMC III
     document.getElementById('check-cn3').addEventListener('change', function(e) {
         if (this.checked) {
-            if (cn3Layer) {
-                cn3Layer.addTo(map);
-            } else {
-                fetch('CN_AMC3.tif')
-                    .then(response => response.arrayBuffer())
-                    .then(arrayBuffer => parseGeoraster(arrayBuffer))
-                    .then(georaster => {
-                        cn3Layer = new GeoRasterLayer({
-                            georaster: georaster,
-                            opacity: 0.7,
-                            resolution: 256
-                        });
-                        cn3Layer.addTo(map);
-                    })
-                    .catch(error => console.error('Erreur lors du chargement de CN AMC3 TIFF:', error));
+            if (cn3Layer) { cn3Layer.addTo(map); } else {
+                fetch('CN_AMC3.tif').then(r => r.arrayBuffer()).then(b => parseGeoraster(b)).then(g => {
+                    cn3Layer = new GeoRasterLayer({ georaster: g, opacity: 0.7, resolution: 256 });
+                    cn3Layer.addTo(map);
+                }).catch(e => console.error(e));
             }
-        } else {
-            if (cn3Layer && map.hasLayer(cn3Layer)) map.removeLayer(cn3Layer);
-        }
+        } else { if (cn3Layer && map.hasLayer(cn3Layer)) map.removeLayer(cn3Layer); }
     });
 
     // ==========================================
-    // 3. GESTION DES COUCHES GEOJSON (OCS, SCS, SFN)
+    // 3. GESTION DES COUCHES GEOJSON (Communes, OCS, SCS, SFN)
     // ==========================================
     const autresCouchesConfig = {
-        'check-ocs': { file: 'OCS.geojson', color: '#27ae60', isPoint: false },
-        'check-scs': { file: 'SCS.geojson', color: '#8e44ad', isPoint: false },
-        'check-sfn': { file: 'SFN.geojson', color: '#c0392b', isPoint: true } // SFN sont des points
+        'check-communes': { file: 'Communes.geojson', color: '#34495e', isPoint: false, weight: 2, fillOpacity: 0.1 },
+        'check-ocs': { file: 'OCS.geojson', color: '#27ae60', isPoint: false, weight: 1, fillOpacity: 0.5 },
+        'check-scs': { file: 'SCS.geojson', color: '#8e44ad', isPoint: false, weight: 1, fillOpacity: 0.5 },
+        'check-sfn': { file: 'SFN.geojson', color: '#c0392b', isPoint: true } // SFN = points
     };
 
     const autresCouchesLayers = {};
@@ -444,7 +425,11 @@
             if (this.checked) {
                 if (!autresCouchesLayers[id]) {
                     autresCouchesLayers[id] = L.geoJSON(null, {
-                        style: { color: config.color, weight: 1, fillOpacity: 0.5 },
+                        style: { 
+                            color: config.color, 
+                            weight: config.weight || 1, 
+                            fillOpacity: config.fillOpacity !== undefined ? config.fillOpacity : 0.5 
+                        },
                         pointToLayer: function (feature, latlng) {
                             if (config.isPoint) {
                                 return L.circleMarker(latlng, {
@@ -485,8 +470,6 @@
             const layerId = this.id;
             
             if (this.checked) {
-                // Création dynamique du nom de fichier basé sur l'ID 
-                // Ex: "ax-amc2-inf-q10" => "Axes_amc2_inf_q10.geojson"
                 const fileName = 'Axes_' + layerId.replace('ax-', '').replace(/-/g, '_') + '.geojson';
                 
                 if (!ruissellementLayers[layerId]) {
@@ -500,7 +483,7 @@
                             ruissellementLayers[layerId].addData(data);
                             ruissellementLayers[layerId].addTo(map);
                         })
-                        .catch(error => console.warn('Fichier non trouvé (Simulation):', fileName));
+                        .catch(error => console.warn('Fichier non trouvé:', fileName));
                 } else {
                     ruissellementLayers[layerId].addTo(map);
                 }
@@ -532,7 +515,8 @@
                 <h3 style="font-size: 13px; margin-bottom: 10px;">Couches thématiques de référence</h3>
                 <p class="rp-description">L'étude du bassin versant du Hohrain repose sur la constitution d'un socle de données de haute précision.</p>
                 <ul style="font-size: 12px; margin-top: 10px; padding-left: 15px; color: #444; line-height: 1.6;">
-                    <li><b>MNT LiDAR 2m :</b> Permet de s'affranchir du micro-relief et d'identifier avec précision la topographie réelle des versants viticoles. <i>(Format TIFF haute résolution)</i></li>
+                    <li><b>Limites communales :</b> Permet de repérer le zonage administratif et l'emprise territoriale.</li>
+                    <li><b>MNT LiDAR 2m :</b> Permet de s'affranchir du micro-relief et d'identifier avec précision la topographie réelle des versants viticoles.</li>
                     <li><b>Occupation du Sol :</b> Cartographie fine différenciant les cultures, vignes, et milieux naturels.</li>
                     <li><b>Groupes Hydrologiques (SCS) :</b> Identification des sols de types B, C et D pour évaluer la capacité d'infiltration face aux événements pluvieux.</li>
                 </ul>
