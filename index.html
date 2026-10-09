@@ -111,7 +111,7 @@
         .layer-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--color-primary); cursor: pointer; }
         .layer-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
 
-        /* Nouvelles classes pour la grille compacte des Q2, Q5, etc. */
+        /* Classes pour la grille compacte des Q2, Q5, etc. */
         .sub-group-title { padding: 6px 14px 4px 36px; font-size: 11px; font-weight: 600; color: var(--color-primary); }
         .grid-checkboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 4px; padding: 4px 14px 10px 36px; }
         .grid-checkboxes .layer-item-mini { display: flex; align-items: center; gap: 6px; }
@@ -343,12 +343,10 @@
     }).addTo(map);
 
     // ==========================================
-    // GESTION DES COUCHES MNT (TIFF) ET RUISSELLEMENT
+    // 1. GESTION DU MNT (TIFF)
     // ==========================================
-
     let mntLayer = null;
 
-    // 1. Chargement du MNT (TIFF via georaster)
     document.getElementById('check-mnt').addEventListener('change', function(e) {
         if (this.checked) {
             if (mntLayer) {
@@ -374,9 +372,113 @@
         }
     });
 
-    // 2. Gestion des Multiples Axes de Ruissellement (GeoJSON)
+    // ==========================================
+    // 2. GESTION DES CURVE NUMBER (TIFF)
+    // ==========================================
+    let cn2Layer = null;
+    let cn3Layer = null;
+
+    // Chargement CN AMC II
+    document.getElementById('check-cn2').addEventListener('change', function(e) {
+        if (this.checked) {
+            if (cn2Layer) {
+                cn2Layer.addTo(map);
+            } else {
+                fetch('CN_AMC2.tif')
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => parseGeoraster(arrayBuffer))
+                    .then(georaster => {
+                        cn2Layer = new GeoRasterLayer({
+                            georaster: georaster,
+                            opacity: 0.7,
+                            resolution: 256
+                        });
+                        cn2Layer.addTo(map);
+                    })
+                    .catch(error => console.error('Erreur lors du chargement de CN AMC2 TIFF:', error));
+            }
+        } else {
+            if (cn2Layer && map.hasLayer(cn2Layer)) map.removeLayer(cn2Layer);
+        }
+    });
+
+    // Chargement CN AMC III
+    document.getElementById('check-cn3').addEventListener('change', function(e) {
+        if (this.checked) {
+            if (cn3Layer) {
+                cn3Layer.addTo(map);
+            } else {
+                fetch('CN_AMC3.tif')
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => parseGeoraster(arrayBuffer))
+                    .then(georaster => {
+                        cn3Layer = new GeoRasterLayer({
+                            georaster: georaster,
+                            opacity: 0.7,
+                            resolution: 256
+                        });
+                        cn3Layer.addTo(map);
+                    })
+                    .catch(error => console.error('Erreur lors du chargement de CN AMC3 TIFF:', error));
+            }
+        } else {
+            if (cn3Layer && map.hasLayer(cn3Layer)) map.removeLayer(cn3Layer);
+        }
+    });
+
+    // ==========================================
+    // 3. GESTION DES COUCHES GEOJSON (OCS, SCS, SFN)
+    // ==========================================
+    const autresCouchesConfig = {
+        'check-ocs': { file: 'OCS.geojson', color: '#27ae60', isPoint: false },
+        'check-scs': { file: 'SCS.geojson', color: '#8e44ad', isPoint: false },
+        'check-sfn': { file: 'SFN.geojson', color: '#c0392b', isPoint: true } // SFN sont des points
+    };
+
+    const autresCouchesLayers = {};
+
+    Object.keys(autresCouchesConfig).forEach(id => {
+        document.getElementById(id).addEventListener('change', function(e) {
+            const config = autresCouchesConfig[id];
+            
+            if (this.checked) {
+                if (!autresCouchesLayers[id]) {
+                    autresCouchesLayers[id] = L.geoJSON(null, {
+                        style: { color: config.color, weight: 1, fillOpacity: 0.5 },
+                        pointToLayer: function (feature, latlng) {
+                            if (config.isPoint) {
+                                return L.circleMarker(latlng, {
+                                    radius: 7, fillColor: config.color, color: "#fff",
+                                    weight: 1.5, opacity: 1, fillOpacity: 0.9
+                                });
+                            }
+                            return L.marker(latlng);
+                        }
+                    });
+                    
+                    fetch(config.file)
+                        .then(r => r.json())
+                        .then(data => {
+                            autresCouchesLayers[id].addData(data);
+                            autresCouchesLayers[id].addTo(map);
+                        })
+                        .catch(err => console.warn('Fichier non trouvé :', config.file));
+                } else {
+                    autresCouchesLayers[id].addTo(map);
+                }
+            } else {
+                if (autresCouchesLayers[id] && map.hasLayer(autresCouchesLayers[id])) {
+                    map.removeLayer(autresCouchesLayers[id]);
+                }
+            }
+        });
+    });
+
+    // ==========================================
+    // 4. GESTION DES 24 AXES DE RUISSELLEMENT (GEOJSON)
+    // ==========================================
     const axesCheckboxes = document.querySelectorAll('.grid-checkboxes input[type="checkbox"]');
-    const ruissellementLayers = {}; // Stockage des couches chargées
+    const ruissellementLayers = {}; 
 
     axesCheckboxes.forEach(chk => {
         chk.addEventListener('change', function(e) {
@@ -411,9 +513,8 @@
     });
 
     // ==========================================
-    // GESTION DES VUES (ONGLETS) ET DE L'INTERFACE
+    // 5. GESTION DES VUES (ONGLETS) ET DE L'INTERFACE
     // ==========================================
-
     function switchView(view) {
         // MAJ des onglets
         document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
