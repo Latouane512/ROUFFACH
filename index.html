@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bassin du Hohrain – Gestion du Ruissellement</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Chart.js & Fonts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bibliothèques pour lire et afficher du TIFF (GeoTIFF) dans Leaflet -->
+    <script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --color-primary: #1a7a4a;
+            --color-primary-light: #e8f5ee;
+            --color-primary-mid: #2d9e63;
+            --color-accent: #0ea5e9;
+            --color-bg: #f7f8fa;
+            --color-sidebar: #ffffff;
+            --color-border: #e5e7eb;
+            --color-text: #1a202c;
+            --color-text-muted: #6b7280;
+            --color-text-light: #9ca3af;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.14);
+            --header-h: 58px;
+            --left-w: 280px;
+            --right-w: 360px;
+            --bottom-h: 36px;
+        }
+
+        body { 
+            font-family: 'Inter', Arial, sans-serif; 
+            background: var(--color-bg); 
+            overflow: hidden; 
+            color: var(--color-text); 
+            font-size: 13px; 
+        }
+        
+        /* =========== HEADER =========== */
+        #app-header { 
+            position: fixed; top: 0; left: 0; right: 0; 
+            height: var(--header-h); background: #fff; 
+            border-bottom: 1px solid var(--color-border); 
+            display: flex; align-items: center; gap: 12px; 
+            padding: 0 16px; z-index: 3000; box-shadow: var(--shadow-sm); 
+        }
+        .header-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-decoration: none; }
+        .logo-icon { width: 36px; height: 36px; }
+        .logo-text h1 { font-size: 15px; font-weight: 700; color: var(--color-primary); line-height: 1.2; }
+        .logo-text p  { font-size: 10px; color: var(--color-text-muted); font-weight: 400; }
+        
+        .header-view-select { 
+            display: flex; align-items: center; gap: 0; 
+            border: 1px solid var(--color-border); border-radius: 7px; 
+            overflow: hidden; flex-shrink: 0; margin-left: auto; 
+        }
+        .view-tab { 
+            padding: 7px 13px; font-size: 11px; font-weight: 500; 
+            cursor: pointer; border: none; background: #fff; 
+            color: var(--color-text-muted); transition: all 0.15s; 
+            font-family: inherit; white-space: nowrap; 
+        }
+        .view-tab + .view-tab { border-left: 1px solid var(--color-border); }
+        .view-tab.active { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
+        .view-tab:hover:not(.active) { background: var(--color-bg); }
+
+        /* =========== MAP & SIDEBARS =========== */
+        #map { position: fixed; top: var(--header-h); left: var(--left-w); right: 0; bottom: var(--bottom-h); z-index: 1; }
+        #map.panel-open { right: var(--right-w); }
+        
+        #left-sidebar { 
+            position: fixed; top: var(--header-h); left: 0; bottom: var(--bottom-h); 
+            width: var(--left-w); background: var(--color-sidebar); 
+            border-right: 1px solid var(--color-border); 
+            display: flex; flex-direction: column; z-index: 2000; overflow: hidden; 
+        }
+        .sidebar-tabs { display: flex; border-bottom: 1px solid var(--color-border); flex-shrink: 0; }
+        .sidebar-tab { 
+            flex: 1; padding: 12px 0; text-align: center; font-size: 13px; 
+            font-weight: 500; cursor: pointer; color: var(--color-text-muted); 
+            border-bottom: 2px solid transparent; transition: all 0.15s; 
+            background: none; border: none; font-family: inherit; 
+        }
+        .sidebar-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+        .sidebar-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+        
+        .layer-group-header { display: flex; align-items: center; gap: 8px; padding: 9px 14px; cursor: pointer; transition: background 0.1s; user-select: none; }
+        .layer-group-header:hover { background: var(--color-bg); }
+        .group-title { font-weight: 600; font-size: 12.5px; color: var(--color-text); flex: 1; }
+        .group-chevron { color: var(--color-text-light); transition: transform 0.2s; font-size: 10px; }
+        .layer-group.open .group-chevron { transform: rotate(90deg); }
+        
+        .layer-group-body { display: none; padding: 2px 0 6px 0; }
+        .layer-group.open .layer-group-body { display: block; }
+        
+        .layer-item { display: flex; align-items: center; gap: 8px; padding: 6px 14px 6px 36px; cursor: pointer; transition: background 0.1s; }
+        .layer-item:hover { background: var(--color-bg); }
+        .layer-item label { flex: 1; font-size: 12px; color: var(--color-text); cursor: pointer; line-height: 1.3; }
+        .layer-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--color-primary); cursor: pointer; }
+        .layer-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+        /* Nouvelles classes pour la grille compacte des Q2, Q5, etc. */
+        .sub-group-title { padding: 6px 14px 4px 36px; font-size: 11px; font-weight: 600; color: var(--color-primary); }
+        .grid-checkboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 4px; padding: 4px 14px 10px 36px; }
+        .grid-checkboxes .layer-item-mini { display: flex; align-items: center; gap: 6px; }
+        .grid-checkboxes .layer-item-mini label { font-size: 11px; color: var(--color-text); cursor: pointer; }
+        .grid-checkboxes .layer-item-mini input[type="checkbox"] { width: 13px; height: 13px; accent-color: var(--color-primary); cursor: pointer; }
+
+        /* =========== RIGHT PANEL =========== */
+        #right-panel { 
+            position: fixed; top: var(--header-h); right: 0; bottom: var(--bottom-h); 
+            width: var(--right-w); background: #fff; 
+            border-left: 1px solid var(--color-border); 
+            box-shadow: -4px 0 16px rgba(0,0,0,0.07); 
+            z-index: 2000; display: none; flex-direction: column; overflow: hidden; 
+        }
+        #right-panel.open { display: flex; }
+        .rp-header { flex-shrink: 0; padding: 18px 18px 14px; border-bottom: 1px solid var(--color-border); }
+        .rp-title { font-size: 15px; font-weight: 700; color: var(--color-text); line-height: 1.4; flex: 1; }
+        .rp-description { font-size: 12px; color: var(--color-text-muted); line-height: 1.6; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+        
+        /* =========== BOTTOM BAR =========== */
+        #bottom-bar { 
+            position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-h); 
+            background: #fff; border-top: 1px solid var(--color-border); 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 20px; z-index: 2500; font-size: 11px; color: var(--color-text-muted); 
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header id="app-header">
+    <a class="header-logo" href="#">
+        <svg class="logo-icon" viewBox="0 0 36 36" fill="none">
+            <path d="M4 22 Q9 14 18 18 Q27 22 32 14" stroke="#1a7a4a" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M4 27 Q9 19 18 23 Q27 27 32 19" stroke="#2d9e63" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M4 17 Q9 9 18 13 Q27 17 32 9" stroke="#68c197" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>
+        <div class="logo-text">
+            <h1>Bassin du Hohrain</h1>
+            <p>Commune de Rouffach - WebSIG</p>
+        </div>
+    </a>
+
+    <div class="header-view-select" id="view-tabs">
+        <button class="view-tab active" id="tab-contexte" onclick="switchView('contexte')">1. Contexte spatial</button>
+        <button class="view-tab" id="tab-ruissellement" onclick="switchView('ruissellement')">2. Dynamique des écoulements</button>
+        <button class="view-tab" id="tab-sfn" onclick="switchView('sfn')">3. Aménagements SFN</button>
+    </div>
+</header>
+
+<!-- ========== LEFT SIDEBAR ========== -->
+<aside id="left-sidebar">
+    <div class="sidebar-tabs">
+        <button class="sidebar-tab active">Couches cartographiques</button>
+    </div>
+
+    <!-- COUCHES TAB -->
+    <div class="sidebar-body" id="sideContent-couches">
+
+        <!-- VUE 1 : CONTEXTE -->
+        <div id="contexte-layers">
+            <div class="layer-group open">
+                <div class="layer-group-header" onclick="toggleGroup(this)">
+                    <span class="group-title">Couches thématiques de référence</span>
+                    <span class="group-chevron">&#9654;</span>
+                </div>
+                <div class="layer-group-body">
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#bdc3c7;"></div>
+                        <input type="checkbox" id="check-mnt">
+                        <label for="check-mnt">Modèle Numérique de Terrain (MNT LiDAR 2m)</label>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#27ae60;"></div>
+                        <input type="checkbox" id="check-ocs">
+                        <label for="check-ocs">Occupation du Sol (OCS)</label>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#8e44ad;"></div>
+                        <input type="checkbox" id="check-scs">
+                        <label for="check-scs">Groupes Hydrologiques de Sols (SCS)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 2 : RUISSELLEMENT -->
+        <div id="ruissellement-layers" style="display:none;">
+            <div class="layer-group open">
+                <div class="layer-group-header" onclick="toggleGroup(this)">
+                    <span class="group-title">Cartographie dynamique (CN)</span>
+                    <span class="group-chevron">&#9654;</span>
+                </div>
+                <div class="layer-group-body">
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#f39c12;"></div>
+                        <input type="checkbox" id="check-cn2">
+                        <label for="check-cn2">Curve Number (AMC II - Normal)</label>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#d35400;"></div>
+                        <input type="checkbox" id="check-cn3">
+                        <label for="check-cn3">Curve Number (AMC III - Saturé)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOUVEAU GROUPE : Axes AMC II -->
+            <div class="layer-group">
+                <div class="layer-group-header" onclick="toggleGroup(this)">
+                    <span class="group-title">Axes ruissellement (AMC II)</span>
+                    <span class="group-chevron">&#9654;</span>
+                </div>
+                <div class="layer-group-body">
+                    <div class="sub-group-title">Avec infiltration</div>
+                    <div class="grid-checkboxes">
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-inf-q2"><label for="ax-amc2-inf-q2">Q2</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-inf-q5"><label for="ax-amc2-inf-q5">Q5</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-inf-q10"><label for="ax-amc2-inf-q10">Q10</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-inf-q20"><label for="ax-amc2-inf-q20">Q20</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-inf-q50"><label for="ax-amc2-inf-q50">Q50</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-inf-q100"><label for="ax-amc2-inf-q100">Q100</label></div>
+                    </div>
+                    
+                    <div class="sub-group-title">Sans infiltration</div>
+                    <div class="grid-checkboxes">
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-noinf-q2"><label for="ax-amc2-noinf-q2">Q2</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-noinf-q5"><label for="ax-amc2-noinf-q5">Q5</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-noinf-q10"><label for="ax-amc2-noinf-q10">Q10</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-noinf-q20"><label for="ax-amc2-noinf-q20">Q20</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-noinf-q50"><label for="ax-amc2-noinf-q50">Q50</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc2-noinf-q100"><label for="ax-amc2-noinf-q100">Q100</label></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOUVEAU GROUPE : Axes AMC III -->
+            <div class="layer-group">
+                <div class="layer-group-header" onclick="toggleGroup(this)">
+                    <span class="group-title">Axes ruissellement (AMC III)</span>
+                    <span class="group-chevron">&#9654;</span>
+                </div>
+                <div class="layer-group-body">
+                    <div class="sub-group-title">Avec infiltration</div>
+                    <div class="grid-checkboxes">
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-inf-q2"><label for="ax-amc3-inf-q2">Q2</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-inf-q5"><label for="ax-amc3-inf-q5">Q5</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-inf-q10"><label for="ax-amc3-inf-q10">Q10</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-inf-q20"><label for="ax-amc3-inf-q20">Q20</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-inf-q50"><label for="ax-amc3-inf-q50">Q50</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-inf-q100"><label for="ax-amc3-inf-q100">Q100</label></div>
+                    </div>
+                    
+                    <div class="sub-group-title">Sans infiltration</div>
+                    <div class="grid-checkboxes">
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-noinf-q2"><label for="ax-amc3-noinf-q2">Q2</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-noinf-q5"><label for="ax-amc3-noinf-q5">Q5</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-noinf-q10"><label for="ax-amc3-noinf-q10">Q10</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-noinf-q20"><label for="ax-amc3-noinf-q20">Q20</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-noinf-q50"><label for="ax-amc3-noinf-q50">Q50</label></div>
+                        <div class="layer-item-mini"><input type="checkbox" id="ax-amc3-noinf-q100"><label for="ax-amc3-noinf-q100">Q100</label></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 3 : AMÉNAGEMENTS SFN -->
+        <div id="sfn-layers" style="display:none;">
+            <div class="layer-group open">
+                <div class="layer-group-header" onclick="toggleGroup(this)">
+                    <span class="group-title">Localisation et suivi SFN</span>
+                    <span class="group-chevron">&#9654;</span>
+                </div>
+                <div class="layer-group-body">
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#c0392b; border-radius:50%;"></div>
+                        <input type="checkbox" id="check-sfn">
+                        <label for="check-sfn">Emplacements prioritaires (31 sites ciblés)</label>
+                    </div>
+                    <div class="layer-item" style="padding-left: 45px;">
+                        <span style="font-size: 11px; color: var(--color-text-muted);">
+                            <i>Intègre : Fascines de saules, noues d'infiltration, haies sur talus. Identifiés par traitement PyQGIS.</i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</aside>
+
+<!-- ========== MAP ========== -->
+<div id="map" class="panel-open"></div>
+
+<!-- ========== RIGHT DETAIL PANEL ========== -->
+<aside id="right-panel" class="open">
+    <div class="rp-header">
+        <div class="rp-title">Gestion des risques de ruissellement</div>
+        <p style="font-size: 11px; color: var(--color-primary); font-weight: bold; margin-top: 5px;">Commune de Rouffach - BV du Hohrain</p>
+    </div>
+    <div class="rp-body" id="panel-content">
+        <!-- Le contenu change dynamiquement via JS -->
+    </div>
+</aside>
+
+<!-- ========== BOTTOM BAR ========== -->
+<footer id="bottom-bar">
+    <span class="bottom-version">WebSIG interactif - Visualisation spatiale des résultats (Section 3.11) &nbsp;|&nbsp; Rouffach 2026</span>
+    <div class="bottom-attribution">
+        &copy; OpenStreetMap contributors &nbsp;|&nbsp; &copy; IGN LiDAR HD
+    </div>
+</footer>
+
+<!-- Leaflet Script -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Initialisation basique de la carte
+    let map = L.map('map', {
+        center: [47.957, 7.298], // Coordonnées approximatives de Rouffach
+        zoom: 14,
+        zoomControl: false
+    });
+    
+    L.control.zoom({ position: 'topleft' }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // ==========================================
+    // GESTION DES COUCHES MNT (TIFF) ET RUISSELLEMENT
+    // ==========================================
+
+    let mntLayer = null;
+
+    // 1. Chargement du MNT (TIFF via georaster)
+    document.getElementById('check-mnt').addEventListener('change', function(e) {
+        if (this.checked) {
+            if (mntLayer) {
+                mntLayer.addTo(map);
+            } else {
+                fetch('MNT_LiDAR.tif')
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => parseGeoraster(arrayBuffer))
+                    .then(georaster => {
+                        mntLayer = new GeoRasterLayer({
+                            georaster: georaster,
+                            opacity: 0.7,
+                            resolution: 256
+                        });
+                        mntLayer.addTo(map);
+                    })
+                    .catch(error => console.error('Erreur lors du chargement du MNT TIFF:', error));
+            }
+        } else {
+            if (mntLayer && map.hasLayer(mntLayer)) {
+                map.removeLayer(mntLayer);
+            }
+        }
+    });
+
+    // 2. Gestion des Multiples Axes de Ruissellement (GeoJSON)
+    const axesCheckboxes = document.querySelectorAll('.grid-checkboxes input[type="checkbox"]');
+    const ruissellementLayers = {}; // Stockage des couches chargées
+
+    axesCheckboxes.forEach(chk => {
+        chk.addEventListener('change', function(e) {
+            const layerId = this.id;
+            
+            if (this.checked) {
+                // Création dynamique du nom de fichier basé sur l'ID 
+                // Ex: "ax-amc2-inf-q10" => "Axes_amc2_inf_q10.geojson"
+                const fileName = 'Axes_' + layerId.replace('ax-', '').replace(/-/g, '_') + '.geojson';
+                
+                if (!ruissellementLayers[layerId]) {
+                    ruissellementLayers[layerId] = L.geoJSON(null, {
+                        style: { color: '#2980b9', weight: 2, opacity: 0.9, dashArray: '4,4' }
+                    });
+                    
+                    fetch(fileName)
+                        .then(r => r.json())
+                        .then(data => {
+                            ruissellementLayers[layerId].addData(data);
+                            ruissellementLayers[layerId].addTo(map);
+                        })
+                        .catch(error => console.warn('Fichier non trouvé (Simulation):', fileName));
+                } else {
+                    ruissellementLayers[layerId].addTo(map);
+                }
+            } else {
+                if (ruissellementLayers[layerId] && map.hasLayer(ruissellementLayers[layerId])) {
+                    map.removeLayer(ruissellementLayers[layerId]);
+                }
+            }
+        });
+    });
+
+    // ==========================================
+    // GESTION DES VUES (ONGLETS) ET DE L'INTERFACE
+    // ==========================================
+
+    function switchView(view) {
+        // MAJ des onglets
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + view).classList.add('active');
+
+        // MAJ de la barre latérale
+        document.getElementById('contexte-layers').style.display = view === 'contexte' ? 'block' : 'none';
+        document.getElementById('ruissellement-layers').style.display = view === 'ruissellement' ? 'block' : 'none';
+        document.getElementById('sfn-layers').style.display = view === 'sfn' ? 'block' : 'none';
+
+        // MAJ du panneau de droite
+        const panelContent = document.getElementById('panel-content');
+        if (view === 'contexte') {
+            panelContent.innerHTML = `
+                <h3 style="font-size: 13px; margin-bottom: 10px;">Couches thématiques de référence</h3>
+                <p class="rp-description">L'étude du bassin versant du Hohrain repose sur la constitution d'un socle de données de haute précision.</p>
+                <ul style="font-size: 12px; margin-top: 10px; padding-left: 15px; color: #444; line-height: 1.6;">
+                    <li><b>MNT LiDAR 2m :</b> Permet de s'affranchir du micro-relief et d'identifier avec précision la topographie réelle des versants viticoles. <i>(Format TIFF haute résolution)</i></li>
+                    <li><b>Occupation du Sol :</b> Cartographie fine différenciant les cultures, vignes, et milieux naturels.</li>
+                    <li><b>Groupes Hydrologiques (SCS) :</b> Identification des sols de types B, C et D pour évaluer la capacité d'infiltration face aux événements pluvieux.</li>
+                </ul>
+            `;
+        } else if (view === 'ruissellement') {
+            panelContent.innerHTML = `
+                <h3 style="font-size: 13px; margin-bottom: 10px;">Dynamique des écoulements</h3>
+                <p class="rp-description">Comparaison spatiale de la genèse du ruissellement selon l'état hydrique du sol et les axes d'accumulation.</p>
+                <div style="margin-top: 15px; padding: 12px; background: var(--color-primary-light); border-radius: 8px;">
+                    <b style="font-size: 12px; color: var(--color-primary);">Méthode Road Burning & Ruissellement</b>
+                    <p style="font-size: 11px; margin-top: 5px; color: #444;">Le tracé des axes de ruissellement préférentiels a été affiné via un forçage du MNT (intégration du réseau routier et des talus) afin de refléter fidèlement l'écoulement réel des eaux pluviales vers l'exutoire. Explorez les différents scénarios de précipitation (Q2 à Q100) en activant les calques.</p>
+                </div>
+            `;
+        } else if (view === 'sfn') {
+            panelContent.innerHTML = `
+                <h3 style="font-size: 13px; margin-bottom: 10px;">Localisation des aménagements SFN</h3>
+                <p class="rp-description">31 emplacements prioritaires d'aménagements doux ont été identifiés par traitement PyQGIS.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
+                    <div style="background: #fdf2f8; padding: 10px; border-radius: 8px; text-align: center;">
+                        <span style="display: block; font-size: 20px; font-weight: bold; color: #be185d;">31</span>
+                        <span style="font-size: 10px; color: #831843;">Sites identifiés</span>
+                    </div>
+                    <div style="background: #ecfdf5; padding: 10px; border-radius: 8px; text-align: center;">
+                        <span style="display: block; font-size: 13px; font-weight: bold; color: #047857; margin-top: 4px;">T2 à T100</span>
+                        <span style="font-size: 10px; color: #064e3b;">Récurrence de crue</span>
+                    </div>
+                </div>
+                
+                <p style="font-size: 12px; color: #444; line-height: 1.5;">
+                    Chaque point d'aménagement est lié à une fiche attributaire précisant :
+                    <br>- Le type d'ouvrage (Fascine de saules, Noue...)
+                    <br>- La pente du versant associé
+                    <br>- L'espacement recommandé
+                    <br>- Le niveau de priorité
+                </p>
+            `;
+        }
+    }
+
+    // Gestion de l'affichage/masquage des groupes dans le menu de gauche
+    function toggleGroup(header) {
+        const group = header.parentElement;
+        group.classList.toggle('open');
+    }
+
+    // Initialiser la première vue au chargement
+    switchView('contexte');
+</script>
+</body>
+</html>
