@@ -414,12 +414,20 @@
                     <li><b>Groupes SCS :</b> Capacité d'infiltration des sols (A, B, C, D).</li>
                 </ul>
             </div>
+            
+            <!-- CONTENU DE L'ONGLET STATISTIQUES AVEC LES DEUX GRAPHIQUES -->
             <div class="rp-tab-content" id="tab-ctx-stats">
-                <p class="rp-section-title">Répartition (Rouffach)</p>
-                <div style="height:220px; margin-top:10px;">
+                <p class="rp-section-title">Occupation du Sol (Champ: OCS_1)</p>
+                <div style="height:180px; margin-top:10px;">
                     <canvas id="chart-ocs"></canvas>
                 </div>
+
+                <p class="rp-section-title" style="margin-top:25px;">Pratiques Viticoles (Champ: EDS)</p>
+                <div style="height:180px; margin-top:10px;">
+                    <canvas id="chart-eds"></canvas>
+                </div>
             </div>
+            
         </div>
     </div>
 
@@ -544,7 +552,7 @@ function initApp() {
     // Associer les comportements des cases à cocher
     setupLayerBindings();
     
-    // Charger le graphique OCS
+    // Lancer la lecture de l'OCS pour générer les graphiques
     initOcsChart();
 
     // Lancer la vue par défaut
@@ -576,6 +584,7 @@ function bindLayer(checkboxId, layerObj, fileName, popupContentFunc) {
 }
 
 function setupLayerBindings() {
+    // Les couches de base
     bindLayer('check-communes', layers.communes, 'Communes.geojson', f => `<b>Commune:</b> ${f.properties.NOM || 'Inconnu'}`);
     bindLayer('check-hydro', layers.hydro, 'hydro.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.nom_cours_d_eau || 'Inconnu'}`);
     bindLayer('check-bati', layers.bati, 'bati.geojson', f => `<b>Bâtiment (BD Topo)</b>`);
@@ -615,7 +624,7 @@ function setupHoverInfo() {
     hoverInfoControl = L.control({ position: 'topright' });
     hoverInfoControl.onAdd = function() { this._div = L.DomUtil.create('div', 'info'); this.update(); return this._div; };
     hoverInfoControl.update = function(props, type) {
-        if (!props) { this._div.innerHTML = '<h4>Infos</h4>Survolez un élément'; return; }
+        if (!props) { this._div.innerHTML = '<h4>Infos</h4>Survolez un axe de ruissellement'; return; }
         if (type === 'Axe') {
             this._div.innerHTML = `<h4>Axe de ruissellement</h4>
                 <b>Vitesse est. :</b> ${props.vitesse || '?'} m/s<br>
@@ -684,24 +693,97 @@ function resetLayers() {
     });
 }
 
-// ===== GRAPHIQUE OCS =====
+// ===== GRAPHIQUES DYNAMIQUES (OCS & VIGNES) =====
 function initOcsChart() {
-    const ctx = document.getElementById('chart-ocs').getContext('2d');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Vignes', 'Forêt', 'Urbain', 'Agricole (autre)'],
-            datasets: [{
-                data: [45, 30, 15, 10],
-                backgroundColor: ['#a6da59', '#27ae60', '#bdc3c7', '#f1c40f'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } }
-        }
-    });
+    // On va chercher le fichier GeoJSON de l'OCS
+    fetch('OCS.geojson')
+        .then(response => response.json())
+        .then(data => {
+            const ocsCounts = {};
+            const edsCounts = {
+                'Sol nu / Travail du sol': 0,
+                'Enherbée 1 rang sur 2': 0,
+                'Enherbée intégrale': 0
+            };
+
+            // On parcourt chaque polygone de la couche
+            data.features.forEach(f => {
+                const props = f.properties;
+                
+                // Si tu as un champ de surface dans ta table (ex: SURF_HA, surface, area), 
+                // le script l'utilise pour être précis. Sinon, il compte le nombre de polygones.
+                const weight = props.SURF_HA || props.surf_ha || props.AREA || props.area || props.surface || 1;
+
+                // 1. Tally pour le graphique OCS_1
+                const ocsVal = props.OCS_1;
+                if (ocsVal) {
+                    if (!ocsCounts[ocsVal]) ocsCounts[ocsVal] = 0;
+                    ocsCounts[ocsVal] += weight;
+                }
+
+                // 2. Tally pour le graphique des pratiques viticoles (EDS)
+                const edsVal = props.EDS;
+                if (edsVal === '0') edsCounts['Sol nu / Travail du sol'] += weight;
+                else if (edsVal === '1/2') edsCounts['Enherbée 1 rang sur 2'] += weight;
+                else if (edsVal === '1/1') edsCounts['Enherbée intégrale'] += weight;
+            });
+
+            // --- GRAPHIQUE 1 : OCS_1 ---
+            const ocsLabels = Object.keys(ocsCounts);
+            const ocsData = Object.values(ocsCounts);
+            // Palette de couleurs pour l'OCS
+            const ocsColors = ocsLabels.map((_, i) => ['#27ae60', '#f1c40f', '#e74c3c', '#3498db', '#9b59b6', '#e67e22', '#1abc9c', '#34495e'][i % 8]);
+
+            const ctxOcs = document.getElementById('chart-ocs').getContext('2d');
+            new Chart(ctxOcs, {
+                type: 'doughnut',
+                data: {
+                    labels: ocsLabels,
+                    datasets: [{
+                        data: ocsData,
+                        backgroundColor: ocsColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Math.round(ctx.raw)}` } }
+                    }
+                }
+            });
+
+            // --- GRAPHIQUE 2 : EDS (Vignes) ---
+            const edsLabels = Object.keys(edsCounts);
+            const edsData = Object.values(edsCounts);
+            // Code couleur métier : Rouge (Sol nu = vulnérable), Orange (1/2), Vert (1/1 = résilient)
+            const edsColors = ['#e74c3c', '#f39c12', '#2ecc71'];
+
+            const ctxEds = document.getElementById('chart-eds').getContext('2d');
+            new Chart(ctxEds, {
+                type: 'pie',
+                data: {
+                    labels: edsLabels,
+                    datasets: [{
+                        data: edsData,
+                        backgroundColor: edsColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Math.round(ctx.raw)}` } }
+                    }
+                }
+            });
+
+        })
+        .catch(err => {
+            console.warn("Erreur lors de la création des graphiques. Le fichier OCS.geojson est-il bien formaté et présent ? ", err);
+        });
 }
 </script>
 </body>
