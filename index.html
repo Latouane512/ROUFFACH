@@ -64,36 +64,6 @@
 
         .header-divider { width: 1px; height: 30px; background: var(--color-border); flex-shrink: 0; }
 
-        .header-search {
-            flex: 1; max-width: 300px;
-            display: flex; align-items: center;
-            background: var(--color-bg); border: 1px solid var(--color-border);
-            border-radius: 8px; padding: 0 12px; gap: 8px;
-            transition: border-color 0.2s;
-        }
-        .header-search:focus-within { border-color: var(--color-primary); }
-        .header-search input {
-            border: none; background: transparent; outline: none;
-            font-size: 13px; color: var(--color-text); width: 100%; padding: 8px 0;
-            font-family: inherit;
-        }
-        .search-icon { color: var(--color-text-muted); flex-shrink: 0; }
-
-        .header-mode-group {
-            display: flex; align-items: center; gap: 0;
-            border: 1px solid var(--color-border); border-radius: 7px; overflow: hidden;
-            flex-shrink: 0;
-        }
-        .header-mode-label { font-size: 11px; color: var(--color-text-muted); padding: 0 10px; white-space: nowrap; }
-        .mode-btn {
-            padding: 7px 14px; font-size: 12px; font-weight: 500;
-            cursor: pointer; border: none; background: #fff;
-            color: var(--color-text-muted); transition: all 0.15s;
-            font-family: inherit; border-left: 1px solid var(--color-border);
-        }
-        .mode-btn.active { background: var(--color-bg); color: var(--color-text); font-weight: 600; }
-        .mode-btn:hover:not(.active) { background: #fafafa; }
-
         .header-view-select {
             display: flex; align-items: center; gap: 0;
             border: 1px solid var(--color-border); border-radius: 7px; overflow: hidden;
@@ -108,14 +78,6 @@
         .view-tab + .view-tab { border-left: 1px solid var(--color-border); }
         .view-tab.active { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
         .view-tab:hover:not(.active) { background: var(--color-bg); }
-
-        .header-icon-btn {
-            width: 34px; height: 34px; border-radius: 7px; cursor: pointer;
-            border: 1px solid var(--color-border); background: #fff;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--color-text-muted); transition: all 0.15s; flex-shrink: 0;
-        }
-        .header-icon-btn:hover { background: var(--color-bg); color: var(--color-text); }
 
         /* =========== MAP =========== */
         #map { position: fixed; top: var(--header-h); left: var(--left-w); right: 0; bottom: var(--bottom-h); z-index: 1; }
@@ -225,19 +187,6 @@
         }
         .bottom-attribution { text-align: center; flex: 1; }
 
-        /* =========== LOGIN OVERLAY =========== */
-        #login-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--color-primary-light);
-            display: flex; align-items: center; justify-content: center; z-index: 5000;
-        }
-        .login-card {
-            background: #fff; border-radius: 16px; padding: 40px; box-shadow: var(--shadow-lg);
-            max-width: 420px; width: 90%; text-align: center;
-        }
-        .login-card h1 { color: var(--color-primary); font-size: 22px; margin-bottom: 8px; }
-        .login-input { width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px; margin-bottom: 16px; }
-        .login-btn { width: 100%; padding: 12px; background: var(--color-primary); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-
         /* =========== INFO HOVER PANEL =========== */
         .info {
             padding: 14px 16px; background: rgba(255,255,255,0.95); border-radius: 8px;
@@ -251,21 +200,6 @@
     </style>
 </head>
 <body>
-
-<!-- ========== LOGIN ========== -->
-<div id="login-overlay">
-    <div class="login-card">
-        <svg width="48" height="48" viewBox="0 0 36 36" fill="none" style="margin-bottom:16px;">
-            <path d="M4 22 Q9 14 18 18 Q27 22 32 14" stroke="#1a7a4a" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M4 27 Q9 19 18 23 Q27 27 32 19" stroke="#2d9e63" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M4 17 Q9 9 18 13 Q27 17 32 9" stroke="#68c197" stroke-width="2" stroke-linecap="round" fill="none"/>
-        </svg>
-        <h1>Bassin du Hohrain</h1>
-        <p>Outil d'aide à la décision - Risque Ruissellement</p>
-        <input type="text" id="login-username" class="login-input" placeholder="Entrez vos initiales (ex: CM)">
-        <button class="login-btn" onclick="performLogin()">Accéder à l'application</button>
-    </div>
-</div>
 
 <!-- ========== HEADER ========== -->
 <header id="app-header">
@@ -282,12 +216,6 @@
     </a>
 
     <div class="header-divider"></div>
-
-    <div class="header-mode-group">
-        <span class="header-mode-label">Mode :</span>
-        <button class="mode-btn active">Consultation</button>
-        <button class="mode-btn">Édition (Agent)</button>
-    </div>
 
     <div class="header-view-select" id="view-tabs">
         <button class="view-tab active" onclick="switchView('contexte')">1. Contexte spatial</button>
@@ -318,6 +246,11 @@
                         <div class="layer-swatch" style="border:2px solid #34495e;background:rgba(52,73,94,0.1);"></div>
                         <input type="checkbox" id="check-communes" checked>
                         <label for="check-communes">Limites communales</label>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#e74c3c;"></div>
+                        <input type="checkbox" id="check-bati">
+                        <label for="check-bati">BD Topo (Bâtiments)</label>
                     </div>
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#3498db;height:3px;margin-top:5px;"></div>
@@ -432,6 +365,7 @@
         <h4 style="font-size:12px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">Légende active</h4>
         <div style="font-size:11px; line-height:1.8;">
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:12px;border:2px solid #34495e;background:rgba(52,73,94,0.1);"></div> Limites communales</div>
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:12px;background:#e74c3c;"></div> Bâtiments (BD Topo)</div>
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:3px;background:#3498db;"></div> Réseau hydrographique</div>
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:3px;border-top:2px dashed #0ea5e9;"></div> Axes de ruissellement (Road Burning)</div>
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#c0392b;border-radius:50%;"></div> Aménagement SFN ciblé</div>
@@ -475,6 +409,7 @@
                 <p class="rp-section-title" style="margin-top:15px;">Socle de données spatiales</p>
                 <ul style="font-size:12px; color:var(--color-text-muted); line-height:1.6; padding-left:15px;">
                     <li><b>MNT LiDAR (2m) :</b> Précision altimétrique indispensable pour modéliser les écoulements à l'échelle de la parcelle.</li>
+                    <li><b>BD Topo :</b> Cartographie des enjeux structurels (bâtiments et infrastructures).</li>
                     <li><b>Occupation du sol :</b> Cartographie fine des vignes, forêts et espaces urbains.</li>
                     <li><b>Groupes SCS :</b> Capacité d'infiltration des sols (A, B, C, D).</li>
                 </ul>
@@ -496,7 +431,7 @@
                 <div class="rp-close" onclick="closeRightPanel()">&#215;</div>
             </div>
             <div class="rp-tags">
-                <span class="rp-tag" style="background:#fee2e2;color:#b91c1c;">Road Burning</span>
+                <span class="rp-tag" style="background:#fee2e2;color:#b91c1c;">Modèle FORTRAN</span>
                 <span class="rp-tag" style="background:#fef3c7;color:#b45309;">Monte-Carlo</span>
             </div>
         </div>
@@ -506,6 +441,10 @@
         </div>
         <div class="rp-body">
             <div class="rp-tab-content active" id="tab-rui-methode">
+                <p class="rp-section-title">Modélisation Numérique</p>
+                <p class="rp-description" style="margin-top:10px; margin-bottom:15px; font-weight: 500; color: var(--color-primary); background: var(--color-primary-light); padding: 10px; border-radius: 6px;">
+                    Les résultats cartographiques de ruissellement présentés sur cette plateforme sont la réponse d'un modèle mathématique codé en <b>FORTRAN</b>. Ce modèle simule la propagation dynamique des flux d'eau sur le relief.
+                </p>
                 <p class="rp-section-title">Forçage du MNT (Road Burning)</p>
                 <p class="rp-description">Pour obtenir des axes de ruissellement réalistes, le MNT brut a été corrigé. Les infrastructures (routes, talus, murets viticoles) agissent comme des barrières ou des canalisations artificielles. L'algorithme "creuse" numériquement ces axes dans le MNT pour forcer l'eau à suivre le réseau réel.</p>
                 
@@ -577,6 +516,7 @@ let hoverInfoControl;
 const layers = {
     communes: L.geoJSON(null, { style: { color: '#34495e', weight: 2, fillOpacity: 0.05, dashArray: '5,5' } }),
     hydro: L.geoJSON(null, { style: { color: '#3498db', weight: 2, opacity: 0.9 } }),
+    bati: L.geoJSON(null, { style: { color: '#e74c3c', weight: 1, fillOpacity: 0.8 } }),
     ocs: L.geoJSON(null, { style: { color: '#27ae60', weight: 1, fillOpacity: 0.5 } }),
     scs: L.geoJSON(null, { style: { color: '#8e44ad', weight: 1, fillOpacity: 0.5 } }),
     sfn: L.geoJSON(null, { 
@@ -585,10 +525,7 @@ const layers = {
 };
 const axesLayers = {}; // Stockera dynamiquement les 24 couches de ruissellement
 
-function performLogin() {
-    document.getElementById('login-overlay').style.display = 'none';
-    initApp();
-}
+document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
     // Fonds de plan
@@ -639,8 +576,9 @@ function bindLayer(checkboxId, layerObj, fileName, popupContentFunc) {
 }
 
 function setupLayerBindings() {
-    bindLayer('check-communes', layers.communes, 'Communes.geojson', f => `<b>Commune:</b> ${f.properties.nom || 'Rouffach'}`);
-    bindLayer('check-hydro', layers.hydro, 'Hydro_Hohrain.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.nom_cours_d_eau || 'Inconnu'}`);
+    bindLayer('check-communes', layers.communes, 'Communes.geojson', f => `<b>Commune:</b> ${f.properties.NOM || 'Inconnu'}`);
+    bindLayer('check-hydro', layers.hydro, 'hydro.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.nom_cours_d_eau || 'Inconnu'}`);
+    bindLayer('check-bati', layers.bati, 'bati.geojson', f => `<b>Bâtiment (BD Topo)</b>`);
     bindLayer('check-ocs', layers.ocs, 'OCS.geojson');
     bindLayer('check-scs', layers.scs, 'SCS.geojson');
     bindLayer('check-sfn', layers.sfn, 'SFN.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Fascine'}<br><b>Priorité:</b> ${f.properties.Priorite || 'Haute'}`);
