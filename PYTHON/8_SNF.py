@@ -1,108 +1,139 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Sep 18 08:22:27 2026
+
+@author: ASUS
+"""
+# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import math
-from qgis.core import (
-    QgsProject,
-    QgsVectorLayer,
-    QgsField,
-    QgsFeature,
-    QgsGeometry,
-    QgsPointXY,
-    QgsRasterLayer
-)
-from PyQt5.QtCore import QVariant
+import geopandas as gpd
+import rasterio
+from shapely.geometry import LineString
+import os
 
-# --- PARAMÉTRAGE ---
-layer_name = "axes_ruissellement"    # Nom de votre couche vectorielle de lignes (axes)
-slope_raster_name = "pente"          # Nom de votre raster de pente (en % ou degrés) dans QGIS (laissez None si non utilisé)
+# =========================================================
+# PARAMÉTRAGE DES FICHIERS
+# =========================================================
+model_dir = r"D:\2_MASTER_ISIE\SIG_AVANCE\donnee"
 
-processing_width = 15.0      # Largeur totale de l'aménagement transversal (en mètres)
-distance_intervalle = 150.0   # Intervalle le long du thalweg entre chaque aménagement (en mètres)
-pente_seuil = 15.0           # Seuil de pente minimal (%) pour déclencher l'installation d'une SFN
+# Chemins vers les GeoJSON des axes vectorisés
+geojson_fichiers = {
+    "normal": os.path.join(model_dir, "resultat_axe_normal_vecteur", "volume_sans_inf_T20.geojson"),
+    "humide": os.path.join(model_dir, "resultat_axe_humide_vecteur", "volume_sans_inf_T20.geojson")
+}
 
-# Récupération de la couche des axes
-layers = QgsProject.instance().mapLayersByName(layer_name)
-if not layers:
-    print(f"Erreur : La couche vectorielle '{layer_name}' est introuvable.")
-else:
-    layer = layers[0]
-    crs = layer.crs().authid()
+raster_pente_path = os.path.join(model_dir, "Donnee", "pente.tif") 
+
+# =========================================================
+# PARAMÉTRAGE MÉTIER
+# =========================================================
+seuil_volume_m3 = 50.0       # Volume minimum d'eau en m3
+seuil_pente_pct = 15.0       # Seuil de pente minimal en %
+processing_width = 8.0       # Largeur de la ligne (8 mètres pour traverser l'axe)
+distance_intervalle = 50.0   # Espacement MINIMUM entre deux SFN (en mètres)
+
+print(f"Analyse des zones critiques à partir des GeoJSON : Volume >= {seuil_volume_m3} m3 ET Pente >= {seuil_pente_pct}%")
+print("Export brut SANS reprojection (coordonnées natives).\n")
+
+try:
+    # 1. Ouverture du raster de pente pour l'échantillonnage
+    src_pente = rasterio.open(raster_pente_path)
+    pente_disponible = True
+except Exception as e:
+    print(f"Attention: Impossible d'ouvrir le raster de pente ({e}).")
+    pente_disponible = False
+
+# =========================================================
+# TRAITEMENT PAR SCÉNARIO
+# =========================================================
+for condition, geojson_path in geojson_fichiers.items():
+    print(f"--- Traitement du scénario : {condition.upper()} ---")
     
-    # Récupération optionnelle du raster de pente
-    slope_layer = None
-    if slope_raster_name:
-        slope_layers = QgsProject.instance().mapLayersByName(slope_raster_name)
-        if slope_layers:
-            slope_layer = slope_layers[0]
-            slope_provider = slope_layer.dataProvider()
+    output_sfn_path = os.path.join(model_dir, f"amenagements_sfn_lignes_{condition}.geojson")
     
-    # Création de la couche mémoire de sortie pour les SFN
-    out_layer = QgsVectorLayer(f"LineString?crs={crs}", "amenagements_sfn_cibles", "memory")
-    prov = out_layer.dataProvider()
-    
-    prov.addAttributes([
-        QgsField("id_troncon", QVariant.Int),
-        QgsField("pente_pct", QVariant.Double),
-        QgsField("type_sfn", QVariant.String)
-    ])
-    out_layer.updateFields()
-    
-    feature_id = 1
-    ouvrages_crees = 0
-    
-    for feat in layer.getFeatures():
-        geom = feat.geometry()
-        if geom.isNull():
-            continue
+    if not os.path.exists(geojson_path):
+        print(f"  -> Erreur : Le fichier GeoJSON est introuvable : {geojson_path}\n")
+        continue
         
-        length = geom.length()
+    try:
+        # 2. Lecture du fichier GeoJSON des axes avec Geopandas
+        gdf_axes = gpd.read_file(geojson_path)
         
-        # Condition 1 : On ignore les micro-axes de ruissellement de moins de 100m
-        if length < 100.0:
+        # Filtrage initial sur le volume minimal requis
+        if 'volume_m3' in gdf_axes.columns:
+            gdf_filtered = gdf_axes[gdf_axes['volume_m3'] >= seuil_volume_m3].copy()
+        else:
+            print("  -> Erreur : La colonne 'volume_m3' est absente de ce GeoJSON.")
             continue
             
-        distance = distance_intervalle
-        while distance < length - (distance_intervalle / 4):
-            point = geom.interpolate(distance)
-            if point:
-                pt = point.asPoint()
-                
-                # Échantillonnage de la pente au point d'implantation (si le raster de pente est fourni)
-                valeur_pente = 0.0
-                if slope_layer:
-                    ident = slope_provider.identify(pt, QgsRaster.IdentifyFormatValue)
-                    if ident.isValid():
-                        results = ident.results()
-                        if results:
-                            valeur_pente = list(results.values())[0]
-                
-                # Condition 2 : Si un raster de pente est actif, on vérifie qu'on dépasse le seuil critique
-                # (Si aucun raster de pente n'est trouvé, le script place l'ouvrage en se basant uniquement sur l'espacement et la taille de l'axe)
-                if not slope_layer or valeur_pente >= pente_seuil:
-                    
-                    # Calcul de la direction locale pour orienter le segment perpendiculairement au thalweg
-                    pt_avant = geom.interpolate(max(0.0, distance - 2.0)).asPoint()
-                    pt_apres = geom.interpolate(min(length, distance + 2.0)).asPoint()
-                    
-                    dx = pt_apres.x() - pt_avant.x()
-                    dy = pt_apres.y() - pt_avant.y()
-                    
-                    norm = math.sqrt(dx*dx + dy*dy)
-                    if norm > 0:
-                        nx = -dy / norm
-                        ny = dx / norm
-                        
-                        half_w = processing_width / 2.0
-                        p1 = QgsPointXY(pt.x() - nx * half_w, pt.y() - ny * half_w)
-                        p2 = QgsPointXY(pt.x() + nx * half_w, pt.y() + ny * half_w)
-                        
-                        new_feat = QgsFeature()
-                        new_feat.setGeometry(QgsGeometry.fromPolylineXY([p1, p2]))
-                        new_feat.setAttributes([feature_id, round(valeur_pente, 1), "Fascine / Noue transversale"])
-                        
-                        prov.addFeature(new_feat)
-                        feature_id += 1
-                        ouvrages_crees += 1
-                        
-            distance += distance_intervalle
+        print(f"  {len(gdf_filtered)} entités vectorielles dépassent le seuil de volume. Vérification de la pente...")
+        
+        accepted_sfns = []
+        feature_id = 1
+        half_w = processing_width / 2.0
+        
+        # Tri des entités du plus gros volume au plus petit pour prioriser les zones à fort risque
+        gdf_filtered = gdf_filtered.sort_values(by='volume_m3', ascending=False)
+        
+        for idx, row in gdf_filtered.iterrows():
+            geom = row['geometry']
+            vol = float(row['volume_m3'])
             
-    QgsProject.instance().addMapLayer(out_layer)
-    print(f"Génération terminée : {ouvrages_crees} aménagements SFN stratégiques créés (filtrés par espacement et pente >= {pente_seuil}%).")
+            # Utilisation du centroïde de l'entité pour échantillonner la pente locale
+            pt = geom.centroid
+            x, y = pt.x, pt.y
+            
+            valeur_pente = 0.0
+            if pente_disponible:
+                try:
+                    sample_gen = src_pente.sample([(x, y)])
+                    valeur_pente = float(list(sample_gen)[0][0])
+                except Exception:
+                    pass
+            
+            # Application du seuil de pente
+            if not pente_disponible or valeur_pente >= seuil_pente_pct:
+                
+                # Vérification de l'espacement minimal avec les aménagements déjà placés
+                trop_proche = False
+                for sfn in accepted_sfns:
+                    if math.hypot(x - sfn["x"], y - sfn["y"]) < distance_intervalle:
+                        trop_proche = True
+                        break
+                
+                if trop_proche:
+                    continue
+                
+                # Création d'une ligne transversale (orientée par défaut de manière horizontale/orthogonale)
+                p1 = (x - half_w, y)
+                p2 = (x + half_w, y)
+                geom_ligne = LineString([p1, p2])
+                
+                accepted_sfns.append({
+                    "x": x, "y": y,
+                    "geometry": geom_ligne,
+                    "id_sfn": feature_id,
+                    "volume_m3": round(vol, 2),
+                    "pente_pct": round(valeur_pente, 1),
+                    "type": "Bande enherbée transversale",
+                    "scenario": condition
+                })
+                feature_id += 1
+
+        # 3. Export des aménagements validés
+        if accepted_sfns:
+            gdf_out = gpd.GeoDataFrame(accepted_sfns)
+            gdf_out = gdf_out.drop(columns=['x', 'y'])
+            
+            gdf_out.to_file(output_sfn_path, driver="GeoJSON")
+            print(f"  -> Succès ! {len(accepted_sfns)} LIGNES transversales créées.")
+            print(f"  -> Fichier enregistré : {output_sfn_path}\n")
+        else:
+            print(f"  -> Aucun aménagement ne correspond aux critères pour le scénario {condition}.\n")
+
+    except Exception as e:
+        print(f"  -> Une erreur est survenue : {e}\n")
+
+if pente_disponible:
+    src_pente.close()
