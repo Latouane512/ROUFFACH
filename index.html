@@ -716,8 +716,10 @@ function setupLayerBindings() {
             const id = this.id; 
             
             const folder = id.includes('amc2') ? 'Ruissellement_Normal' : 'Ruissellement_Humide';
-            const cleanId = id.replace('ax-amc2-', '').replace('ax-amc3-', '').replace(/-/g, '_');
-            const fileName = folder + '/Axes_' + cleanId + '.geojson';
+            
+            // On remplace 'ax-' par 'Axes_' et on transforme les tirets restants en underscores
+            const fileNameBase = id.replace(/^ax-/, 'Axes_').replace(/-/g, '_');
+            const fileName = folder + '/' + fileNameBase + '.geojson';
             
             if (this.checked) {
                 if (!axesLayers[id]) {
