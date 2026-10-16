@@ -366,15 +366,15 @@
                     <span class="group-chevron">&#9654;</span>
                 </div>
                 <div class="layer-group-body">
-                    <!-- SFN Normal -->
+                    <!-- SFN Normal : Jaune Or -->
                     <div class="layer-item">
-                        <div class="layer-swatch" style="background:#d35400; border-radius:50%;"></div>
+                        <div class="layer-swatch" style="background:#eab308; border-radius:50%; border:1px solid #000;"></div>
                         <input type="checkbox" id="check-sfn-normal">
                         <label for="check-sfn-normal">SFN - AMC II Normal (29 sites)</label>
                     </div>
-                    <!-- SFN Humide -->
+                    <!-- SFN Humide : Rose Magenta -->
                     <div class="layer-item">
-                        <div class="layer-swatch" style="background:#c0392b; border-radius:50%;"></div>
+                        <div class="layer-swatch" style="background:#ec4899; border-radius:50%; border:1px solid #000;"></div>
                         <input type="checkbox" id="check-sfn-humide" checked>
                         <label for="check-sfn-humide">SFN - AMC III Saturé (31 sites)</label>
                     </div>
@@ -402,8 +402,8 @@
                 </div>
             </div>
 
-            <div style="display:flex; align-items:center; gap:8px; margin-top:15px;"><div style="width:10px;height:10px;background:#d35400;border-radius:50%;"></div> Aménagement SFN (AMC II)</div>
-            <div style="display:flex; align-items:center; gap:8px; margin-top:5px;"><div style="width:10px;height:10px;background:#c0392b;border-radius:50%;"></div> Aménagement SFN (AMC III)</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:15px;"><div style="width:10px;height:10px;background:#eab308;border-radius:50%;border:1px solid #000;"></div> Aménagement SFN (AMC II)</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:5px;"><div style="width:10px;height:10px;background:#ec4899;border-radius:50%;border:1px solid #000;"></div> Aménagement SFN (AMC III)</div>
         </div>
     </div>
 
@@ -523,33 +523,14 @@
             <div class="rp-tab-content" id="tab-rui-result">
                 <p class="rp-section-title">Comparatif des Conditions AMC</p>
                 
-                <div style="display:flex; justify-content:space-between; margin: 15px 0; background:#f9fafb; padding:10px; border:1px solid #e5e7eb; border-radius:6px;">
-                    <div style="width:48%; text-align:center;">
-                        <div style="font-weight:700; color:#3b82f6; font-size:12px; margin-bottom:5px;">AMC II (Normal)</div>
-                        <svg viewBox="0 0 100 60" style="width:100%; height:auto; background:#fff; border:1px solid #ddd; border-radius:4px;">
-                            <path d="M10,50 Q50,50 90,10" fill="none" stroke="#8b4513" stroke-width="2"/>
-                            <path d="M10,48 Q50,48 90,8" fill="none" stroke="#3b82f6" stroke-width="3" opacity="0.6"/>
-                            <line x1="50" y1="30" x2="50" y2="50" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2,2"/>
-                            <text x="55" y="45" font-size="8" fill="#555">Infiltration forte</text>
-                        </svg>
-                        <p style="font-size:10px; color:#666; margin-top:4px;">Flux ralenti par la capacité d'absorption du sol.</p>
-                    </div>
-                    <div style="width:48%; text-align:center;">
-                        <div style="font-weight:700; color:#b91c1c; font-size:12px; margin-bottom:5px;">AMC III (Saturé)</div>
-                        <svg viewBox="0 0 100 60" style="width:100%; height:auto; background:#fff; border:1px solid #ddd; border-radius:4px;">
-                            <path d="M10,50 Q50,50 90,10" fill="none" stroke="#8b4513" stroke-width="2"/>
-                            <path d="M10,45 Q50,45 90,5" fill="none" stroke="#4c1d95" stroke-width="6" opacity="0.8"/>
-                            <line x1="50" y1="30" x2="50" y2="35" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2,2"/>
-                            <text x="55" y="32" font-size="8" fill="#555">Infiltration nulle</text>
-                        </svg>
-                        <p style="font-size:10px; color:#666; margin-top:4px;">Ruissellement immédiat, volumes (m³) massifs.</p>
-                    </div>
-                </div>
+                <!-- INTEGRATION DU SCHEMA DU RUISSELLEMENT (IMAGE GITHUB) -->
+                <figure style="margin: 15px 0;">
+                    <img src="schema_ruissellement.jpg" alt="Schéma des types de ruissellement" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
+                </figure>
 
                 <p class="rp-section-title">Constats sur le bassin</p>
                 <p class="rp-description">L'analyse spatiale met en évidence une concentration rapide des flux sur les versants viticoles de forte pente. En condition AMC III (sol saturé), même une pluie de fréquence Q10 génère des axes de ruissellement majeurs menaçant l'aval urbain de Rouffach.</p>
 
-                <!-- Bouton Export Excel (Lien vers le fichier hebergé sur Github) -->
                 <a href="Synthese_Ruissellement_Hohrain.xlsx" download class="btn-excel">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                     Télécharger la synthèse (EXCEL)
@@ -588,23 +569,31 @@
             <div class="rp-tab-content" id="tab-sfn-amenag">
                 <p class="rp-section-title">Alternatives SFN en milieu viticole</p>
                 <p class="rp-description" style="margin-bottom:15px;">Ces méthodes visent à ralentir les écoulements et favoriser l'infiltration à la source, avant que l'eau ne rejoigne le réseau de routes :</p>
-                <ul style="font-size:12px; color:var(--color-text-muted); line-height:1.6; padding-left:15px;">
-                    <li><b>Enherbement inter-rangs :</b> Accroît la rugosité hydraulique et piège les sédiments fins à la source (réduction du ruissellement jusqu'à 75 %).</li>
-                    <li style="margin-top:6px;"><b>Andains de sarments et fascines :</b> Disposés en bas de rang pour dissiper l'énergie cinétique de la lame d'eau et protéger contre la battance pluviale.</li>
-                    <li style="margin-top:6px;"><b>Micro-merlons et noues :</b> Rétentions temporaires favorisant le ressaut hydraulique et l'infiltration verticale sur les axes de drainage.</li>
-                    <li style="margin-top:6px;"><b>Déflecteurs (water-bars) et radiers :</b> Freinent l'eau collectée par la voirie tout en maintenant la portance pour les engins agricoles (tracteurs, enjambeurs).</li>
-                </ul>
+                
+                <!-- INTEGRATION DES DEUX PHOTOS DEMANDEES -->
+                <div style="margin-top: 15px;">
+                    <figure style="margin-bottom: 20px;">
+                        <img src="deflecteur.jpg" alt="Déflecteur transversal (water-bar)" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
+                        <figcaption style="font-size: 10px; color: #6b7280; text-align: center; margin-top: 6px; line-height: 1.4;">Exemple de déflecteur transversal (water-bar) pour le renvoi latéral des écoulements sur piste en forte pente<br><i>(Source : The Kerr Center for Sustainable Agriculture)</i></figcaption>
+                    </figure>
+                    
+                    <figure style="margin-bottom: 20px;">
+                        <img src="radier.jpg" alt="Radier de pierres rustique" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
+                        <figcaption style="font-size: 10px; color: #6b7280; text-align: center; margin-top: 6px; line-height: 1.4;">Aménagement d'un radier de pierres rustique favorisant le ralentissement hydraulique sur axe de circulation<br><i>(Source : Green Mountain Club)</i></figcaption>
+                    </figure>
+                </div>
+
             </div>
 
             <div class="rp-tab-content" id="tab-sfn-results">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-                    <div style="background:#fff7ed; padding:15px; border-radius:8px; text-align:center;">
-                        <div style="font-size:24px; font-weight:bold; color:#c2410c;">29</div>
-                        <div style="font-size:10px; color:#9a3412;">Emplacements en AMC II</div>
+                    <div style="background:#fefce8; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:24px; font-weight:bold; color:#a16207;">29</div>
+                        <div style="font-size:10px; color:#854d0e;">Emplacements en AMC II</div>
                     </div>
-                    <div style="background:#fef2f2; padding:15px; border-radius:8px; text-align:center;">
-                        <div style="font-size:24px; font-weight:bold; color:#b91c1c;">31 (+2)</div>
-                        <div style="font-size:10px; color:#7f1d1d;">Emplacements en AMC III</div>
+                    <div style="background:#fdf2f8; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:24px; font-weight:bold; color:#be185d;">31 (+2)</div>
+                        <div style="font-size:10px; color:#9d174d;">Emplacements en AMC III</div>
                     </div>
                 </div>
                 <p class="rp-section-title">Implantation Cartographique</p>
@@ -637,12 +626,12 @@ const layers = {
     ocs: L.geoJSON(null, { style: { color: '#27ae60', weight: 1, fillOpacity: 0.5 } }),
     scs: L.geoJSON(null, { style: { color: '#8e44ad', weight: 1, fillOpacity: 0.5 } }),
     
-    // NOUVELLES COUCHES SFN SEPAREES
+    // NOUVELLES COULEURS SFN
     sfnNormal: L.geoJSON(null, { 
-        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#d35400', color: '#fff', weight: 1.5, fillOpacity: 1 })
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#eab308', color: '#000', weight: 2, fillOpacity: 1 })
     }),
     sfnHumide: L.geoJSON(null, { 
-        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#c0392b', color: '#fff', weight: 1.5, fillOpacity: 1 })
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#ec4899', color: '#000', weight: 2, fillOpacity: 1 })
     })
 };
 const axesLayers = {}; 
@@ -707,7 +696,6 @@ function setupLayerBindings() {
     bindLayer('check-ocs', layers.ocs, 'OCS.geojson');
     bindLayer('check-scs', layers.scs, 'SCS.geojson');
     
-    // LIAISON DES NOUVEAUX FICHIERS SFN
     bindLayer('check-sfn-normal', layers.sfnNormal, 'SFN_Normal.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Déflecteur / Noue'} <br><b>Scénario:</b> AMC II (Normal)`);
     bindLayer('check-sfn-humide', layers.sfnHumide, 'SFN_Humide.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Déflecteur / Noue'} <br><b>Scénario:</b> AMC III (Saturé)`);
 
