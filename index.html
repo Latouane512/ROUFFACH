@@ -29,7 +29,7 @@
             --shadow-lg: 0 8px 24px rgba(0,0,0,0.14);
             --header-h: 58px;
             --left-w: 260px;
-            --right-w: 360px;
+            --right-w: 420px;
             --bottom-h: 36px;
         }
 
@@ -126,7 +126,6 @@
         .layer-item input[type="checkbox"] { width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; accent-color: var(--color-primary); }
         .layer-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
 
-        /* Grilles pour les Scénarios Q */
         .sub-group-title { padding: 6px 14px 4px 36px; font-size: 11px; font-weight: 600; color: var(--color-primary); }
         .grid-checkboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 4px; padding: 4px 14px 10px 36px; }
         .grid-checkboxes .layer-item-mini { display: flex; align-items: center; gap: 6px; }
@@ -163,11 +162,11 @@
         }
         .rp-close:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
 
-        .rp-tabs { display: flex; border-bottom: 1px solid var(--color-border); flex-shrink: 0; padding: 0 18px; }
+        .rp-tabs { display: flex; border-bottom: 1px solid var(--color-border); flex-shrink: 0; padding: 0 18px; overflow-x: auto; }
         .rp-tab {
             padding: 10px 0; margin-right: 20px; font-size: 12px; font-weight: 500; cursor: pointer;
             color: var(--color-text-muted); border-bottom: 2px solid transparent; background: none; border-top: none;
-            border-left: none; border-right: none; font-family: inherit;
+            border-left: none; border-right: none; font-family: inherit; white-space: nowrap;
         }
         .rp-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
 
@@ -177,6 +176,21 @@
         .rp-section-title { font-size: 12.5px; font-weight: 700; color: var(--color-text); margin: 18px 0 10px; }
         .rp-section-title:first-child { margin-top: 0; }
         .rp-description { font-size: 12px; color: var(--color-text-muted); line-height: 1.6; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+        .data-table th { background-color: var(--color-bg); padding: 8px; text-align: left; border-bottom: 2px solid var(--color-border); color: var(--color-text); }
+        .data-table td { padding: 8px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table .dt-type { font-weight: 600; color: var(--color-primary); }
+
+        /* Bouton Excel (Lien direct) */
+        .btn-excel {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; margin-top: 20px; padding: 12px; text-decoration: none;
+            background-color: #107c41; color: #fff; font-weight: 600; font-size: 13px;
+            border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-excel:hover { background-color: #0c5e31; }
 
         /* =========== BOTTOM BAR =========== */
         #bottom-bar {
@@ -195,13 +209,20 @@
         }
         .info h4 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--color-text); border-bottom: 2px solid var(--color-primary); padding-bottom: 6px; }
 
-        /* Leaflet overrides */
+        /* Gradient de la légende ruissellement */
+        .gradient-bar {
+            height: 8px; width: 100%; border-radius: 4px; margin-top: 4px;
+            background: linear-gradient(to right, #0ea5e9, #3b82f6, #4c1d95);
+        }
+        .gradient-labels {
+            display: flex; justify-content: space-between; font-size: 9px; color: #666; margin-top: 2px;
+        }
+
         .leaflet-control-layers { border-radius: 8px !important; font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body>
 
-<!-- ========== HEADER ========== -->
 <header id="app-header">
     <a class="header-logo" href="#">
         <svg class="logo-icon" viewBox="0 0 36 36" fill="none">
@@ -224,7 +245,6 @@
     </div>
 </header>
 
-<!-- ========== LEFT SIDEBAR =========== -->
 <aside id="left-sidebar">
     <div class="sidebar-tabs">
         <button class="sidebar-tab active" onclick="showSideTab('couches')">Couches cartographiques</button>
@@ -233,7 +253,6 @@
 
     <div class="sidebar-body" id="sideContent-couches">
         
-        <!-- VUE 1 : CONTEXTE -->
         <div id="view-contexte">
             <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
@@ -281,12 +300,11 @@
             </div>
         </div>
 
-        <!-- VUE 2 : RUISSELLEMENT -->
         <div id="view-ruissellement" style="display:none;">
             <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
                     <svg class="group-icon" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                    <span class="group-title">Axes ruissellement (AMC II)</span>
+                    <span class="group-title">AMC II (Normal)</span>
                     <span class="group-chevron">&#9654;</span>
                 </div>
                 <div class="layer-group-body">
@@ -314,7 +332,7 @@
             <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
                     <svg class="group-icon" viewBox="0 0 24 24" fill="none" stroke="#d35400" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    <span class="group-title">Axes ruissellement (AMC III)</span>
+                    <span class="group-title">AMC III (Saturé)</span>
                     <span class="group-chevron">&#9654;</span>
                 </div>
                 <div class="layer-group-body">
@@ -340,7 +358,6 @@
             </div>
         </div>
 
-        <!-- VUE 3 : SFN -->
         <div id="view-sfn" style="display:none;">
             <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
@@ -349,10 +366,17 @@
                     <span class="group-chevron">&#9654;</span>
                 </div>
                 <div class="layer-group-body">
+                    <!-- SFN Normal -->
+                    <div class="layer-item">
+                        <div class="layer-swatch" style="background:#d35400; border-radius:50%;"></div>
+                        <input type="checkbox" id="check-sfn-normal">
+                        <label for="check-sfn-normal">SFN - AMC II Normal (29 sites)</label>
+                    </div>
+                    <!-- SFN Humide -->
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#c0392b; border-radius:50%;"></div>
-                        <input type="checkbox" id="check-sfn" checked>
-                        <label for="check-sfn">Aménagements SFN (31 sites)</label>
+                        <input type="checkbox" id="check-sfn-humide" checked>
+                        <label for="check-sfn-humide">SFN - AMC III Saturé (31 sites)</label>
                     </div>
                 </div>
             </div>
@@ -360,15 +384,26 @@
 
     </div>
 
-    <!-- LEGENDE (Simplifiée) -->
+    <!-- LEGENDE -->
     <div class="sidebar-body" id="sideContent-legende" style="display:none; padding: 14px;">
         <h4 style="font-size:12px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">Légende active</h4>
         <div style="font-size:11px; line-height:1.8;">
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:12px;border:2px solid #34495e;background:rgba(52,73,94,0.1);"></div> Limites communales</div>
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:12px;background:#e74c3c;"></div> Bâtiments (BD Topo)</div>
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:3px;background:#3498db;"></div> Réseau hydrographique</div>
-            <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:3px;border-top:2px dashed #0ea5e9;"></div> Axes de ruissellement (Road Burning)</div>
-            <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#c0392b;border-radius:50%;"></div> Aménagement SFN ciblé</div>
+            
+            <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
+                <b>Axes de ruissellement (Volume m³)</b>
+                <div class="gradient-bar"></div>
+                <div class="gradient-labels">
+                    <span>Faible (< 100)</span>
+                    <span>Modéré</span>
+                    <span>Intense (> 1000)</span>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; margin-top:15px;"><div style="width:10px;height:10px;background:#d35400;border-radius:50%;"></div> Aménagement SFN (AMC II)</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:5px;"><div style="width:10px;height:10px;background:#c0392b;border-radius:50%;"></div> Aménagement SFN (AMC III)</div>
         </div>
     </div>
 
@@ -380,13 +415,10 @@
     </div>
 </aside>
 
-<!-- ========== MAP ========== -->
 <div id="map"></div>
 
-<!-- ========== RIGHT PANEL =========== -->
 <aside id="right-panel">
     
-    <!-- PANEL CONTEXTE -->
     <div id="panel-contexte" style="display:flex; flex-direction:column; height:100%;">
         <div class="rp-header">
             <div class="rp-title-row">
@@ -394,28 +426,55 @@
                 <div class="rp-close" onclick="closeRightPanel()">&#215;</div>
             </div>
             <div class="rp-tags">
-                <span class="rp-tag" style="background:#e0f2fe;color:#0369a1;">Topographie LiDAR</span>
-                <span class="rp-tag" style="background:#dcfce7;color:#166534;">Vignoble</span>
+                <span class="rp-tag" style="background:#e0f2fe;color:#0369a1; padding:2px 8px; border-radius:4px; font-size:11px;">Topographie LiDAR</span>
+                <span class="rp-tag" style="background:#dcfce7;color:#166534; padding:2px 8px; border-radius:4px; font-size:11px;">Vignoble</span>
             </div>
         </div>
         <div class="rp-tabs">
-            <button class="rp-tab active" onclick="showRpTab(this,'tab-ctx-info')">Présentation</button>
+            <button class="rp-tab active" onclick="showRpTab(this,'tab-ctx-info')">Présentation & Données</button>
             <button class="rp-tab" onclick="showRpTab(this,'tab-ctx-stats')">Occupation du sol</button>
         </div>
         <div class="rp-body">
             <div class="rp-tab-content active" id="tab-ctx-info">
                 <p class="rp-section-title">Bassin versant du Hohrain</p>
                 <p class="rp-description">Situé sur la commune de Rouffach, le bassin versant du Hohrain est particulièrement exposé aux phénomènes de ruissellement et d'érosion des sols, en raison de sa topographie marquée et de la forte présence de parcelles viticoles (sols nus). Les récents épisodes pluvieux intenses y ont provoqué d'importantes coulées de boue.</p>
-                <p class="rp-section-title" style="margin-top:15px;">Socle de données spatiales</p>
-                <ul style="font-size:12px; color:var(--color-text-muted); line-height:1.6; padding-left:15px;">
-                    <li><b>MNT LiDAR (2m) :</b> Précision altimétrique indispensable pour modéliser les écoulements à l'échelle de la parcelle.</li>
-                    <li><b>BD Topo :</b> Cartographie des enjeux structurels (bâtiments et infrastructures).</li>
-                    <li><b>Occupation du sol :</b> Cartographie fine des vignes, forêts et espaces urbains.</li>
-                    <li><b>Groupes SCS :</b> Capacité d'infiltration des sols (A, B, C, D).</li>
-                </ul>
+                
+                <p class="rp-section-title" style="margin-top:20px;">Socle de données spatiales</p>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Type de donnée</th>
+                                <th>Description / Source</th>
+                                <th>Précision / Caractéristiques</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="dt-type">Modèle numérique de terrain</td>
+                                <td>MNT LiDAR du Conseil Général du Haut-Rhin (Junker, 2008) + levé de terrain au sol</td>
+                                <td>Précision altitudinale centimétrique</td>
+                            </tr>
+                            <tr>
+                                <td class="dt-type">Occupation du Sol (OCS)</td>
+                                <td>Cartes issues des travaux du laboratoire LHYGES (Grégoire et al., 2010) et de la thèse de Stéphanie Madier (2007)</td>
+                                <td>Numérisation parcellaire fine des modes de conduite viticole</td>
+                            </tr>
+                            <tr>
+                                <td class="dt-type">Pédologie et Hydrodynamique</td>
+                                <td>Carte des sols du bassin du Hohrain (sols bruns calcaires loessiques, conglomérats oligocènes) et mesures d'infiltration/conductivité (thèses de J. Tournebize, 2001, et N. Domange, 2005)</td>
+                                <td>Conductivité hydraulique à saturation (Ks) et taux d'infiltration in-situ</td>
+                            </tr>
+                            <tr>
+                                <td class="dt-type">Données Pluviométriques</td>
+                                <td>Station Météo-France</td>
+                                <td>Pas de temps de 6 minutes depuis janvier 1998</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
-            <!-- CONTENU DE L'ONGLET STATISTIQUES AVEC LES DEUX GRAPHIQUES -->
             <div class="rp-tab-content" id="tab-ctx-stats">
                 <p class="rp-section-title">Occupation du Sol (Champ: OCS_1)</p>
                 <div style="height:180px; margin-top:10px;">
@@ -427,11 +486,9 @@
                     <canvas id="chart-eds"></canvas>
                 </div>
             </div>
-            
         </div>
     </div>
 
-    <!-- PANEL RUISSELLEMENT -->
     <div id="panel-ruissellement" style="display:none; flex-direction:column; height:100%;">
         <div class="rp-header">
             <div class="rp-title-row">
@@ -439,13 +496,12 @@
                 <div class="rp-close" onclick="closeRightPanel()">&#215;</div>
             </div>
             <div class="rp-tags">
-                <span class="rp-tag" style="background:#fee2e2;color:#b91c1c;">Modèle FORTRAN</span>
-                <span class="rp-tag" style="background:#fef3c7;color:#b45309;">Monte-Carlo</span>
+                <span class="rp-tag" style="background:#fee2e2;color:#b91c1c; padding:2px 8px; border-radius:4px; font-size:11px;">Modèle FORTRAN</span>
             </div>
         </div>
         <div class="rp-tabs">
             <button class="rp-tab active" onclick="showRpTab(this,'tab-rui-methode')">Méthodologie</button>
-            <button class="rp-tab" onclick="showRpTab(this,'tab-rui-result')">Interprétation</button>
+            <button class="rp-tab" onclick="showRpTab(this,'tab-rui-result')">Interprétation & Export</button>
         </div>
         <div class="rp-body">
             <div class="rp-tab-content active" id="tab-rui-methode">
@@ -465,13 +521,43 @@
                 </div>
             </div>
             <div class="rp-tab-content" id="tab-rui-result">
+                <p class="rp-section-title">Comparatif des Conditions AMC</p>
+                
+                <div style="display:flex; justify-content:space-between; margin: 15px 0; background:#f9fafb; padding:10px; border:1px solid #e5e7eb; border-radius:6px;">
+                    <div style="width:48%; text-align:center;">
+                        <div style="font-weight:700; color:#3b82f6; font-size:12px; margin-bottom:5px;">AMC II (Normal)</div>
+                        <svg viewBox="0 0 100 60" style="width:100%; height:auto; background:#fff; border:1px solid #ddd; border-radius:4px;">
+                            <path d="M10,50 Q50,50 90,10" fill="none" stroke="#8b4513" stroke-width="2"/>
+                            <path d="M10,48 Q50,48 90,8" fill="none" stroke="#3b82f6" stroke-width="3" opacity="0.6"/>
+                            <line x1="50" y1="30" x2="50" y2="50" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2,2"/>
+                            <text x="55" y="45" font-size="8" fill="#555">Infiltration forte</text>
+                        </svg>
+                        <p style="font-size:10px; color:#666; margin-top:4px;">Flux ralenti par la capacité d'absorption du sol.</p>
+                    </div>
+                    <div style="width:48%; text-align:center;">
+                        <div style="font-weight:700; color:#b91c1c; font-size:12px; margin-bottom:5px;">AMC III (Saturé)</div>
+                        <svg viewBox="0 0 100 60" style="width:100%; height:auto; background:#fff; border:1px solid #ddd; border-radius:4px;">
+                            <path d="M10,50 Q50,50 90,10" fill="none" stroke="#8b4513" stroke-width="2"/>
+                            <path d="M10,45 Q50,45 90,5" fill="none" stroke="#4c1d95" stroke-width="6" opacity="0.8"/>
+                            <line x1="50" y1="30" x2="50" y2="35" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2,2"/>
+                            <text x="55" y="32" font-size="8" fill="#555">Infiltration nulle</text>
+                        </svg>
+                        <p style="font-size:10px; color:#666; margin-top:4px;">Ruissellement immédiat, volumes (m³) massifs.</p>
+                    </div>
+                </div>
+
                 <p class="rp-section-title">Constats sur le bassin</p>
                 <p class="rp-description">L'analyse spatiale met en évidence une concentration rapide des flux sur les versants viticoles de forte pente. En condition AMC III (sol saturé), même une pluie de fréquence Q10 génère des axes de ruissellement majeurs menaçant l'aval urbain de Rouffach.</p>
+
+                <!-- Bouton Export Excel (Lien vers le fichier hebergé sur Github) -->
+                <a href="Synthese_Ruissellement_Hohrain.xlsx" download class="btn-excel">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Télécharger la synthèse (EXCEL)
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- PANEL SFN -->
     <div id="panel-sfn" style="display:none; flex-direction:column; height:100%;">
         <div class="rp-header">
             <div class="rp-title-row">
@@ -479,33 +565,57 @@
                 <div class="rp-close" onclick="closeRightPanel()">&#215;</div>
             </div>
             <div class="rp-tags">
-                <span class="rp-tag" style="background:#dcfce7;color:#166534;">Hydraulique douce</span>
+                <span class="rp-tag" style="background:#dcfce7;color:#166534; padding:2px 8px; border-radius:4px; font-size:11px;">Hydraulique douce</span>
             </div>
         </div>
         <div class="rp-tabs">
-            <button class="rp-tab active" onclick="showRpTab(this,'tab-sfn-sites')">Sites d'intervention</button>
+            <button class="rp-tab active" onclick="showRpTab(this,'tab-sfn-methodo')">Méthodologie</button>
+            <button class="rp-tab" onclick="showRpTab(this,'tab-sfn-amenag')">Aménagements</button>
+            <button class="rp-tab" onclick="showRpTab(this,'tab-sfn-results')">Résultats</button>
         </div>
         <div class="rp-body">
-            <div class="rp-tab-content active" id="tab-sfn-sites">
+            
+            <div class="rp-tab-content active" id="tab-sfn-methodo">
+                <p class="rp-section-title">Repérage des zones d'aménagement</p>
+                <p class="rp-description" style="margin-bottom:10px;">Un script de traitement automatisé développé sous Python (GeoPandas, Rasterio, NumPy, Shapely) a été mis en œuvre pour positionner les ouvrages :</p>
+                <ol style="font-size:12px; color:var(--color-text-muted); line-height:1.6; padding-left:15px;">
+                    <li><b>Couplage multicritère énergétique :</b> L'algorithme croise le volume ruisselé avec la pente locale afin d'isoler les zones à haut risque (Q critique + pente ≥ 15 %), ciblant les voiries et chemins viticoles.</li>
+                    <li style="margin-top:6px;"><b>Génération géométrique :</b> Calcul de la direction locale de l'écoulement pour tracer des lignes géométriques transversales (largeur de 10 m), espacées d'au moins 150 m.</li>
+                    <li style="margin-top:6px;"><b>Gestion multi-scénarios :</b> Traitement dissocié des conditions AMC II et AMC III pour la période de retour vicennale (T20). Intégrité spatiale garantie via un export vectoriel en GeoJSON.</li>
+                </ol>
+            </div>
+
+            <div class="rp-tab-content" id="tab-sfn-amenag">
+                <p class="rp-section-title">Alternatives SFN en milieu viticole</p>
+                <p class="rp-description" style="margin-bottom:15px;">Ces méthodes visent à ralentir les écoulements et favoriser l'infiltration à la source, avant que l'eau ne rejoigne le réseau de routes :</p>
+                <ul style="font-size:12px; color:var(--color-text-muted); line-height:1.6; padding-left:15px;">
+                    <li><b>Enherbement inter-rangs :</b> Accroît la rugosité hydraulique et piège les sédiments fins à la source (réduction du ruissellement jusqu'à 75 %).</li>
+                    <li style="margin-top:6px;"><b>Andains de sarments et fascines :</b> Disposés en bas de rang pour dissiper l'énergie cinétique de la lame d'eau et protéger contre la battance pluviale.</li>
+                    <li style="margin-top:6px;"><b>Micro-merlons et noues :</b> Rétentions temporaires favorisant le ressaut hydraulique et l'infiltration verticale sur les axes de drainage.</li>
+                    <li style="margin-top:6px;"><b>Déflecteurs (water-bars) et radiers :</b> Freinent l'eau collectée par la voirie tout en maintenant la portance pour les engins agricoles (tracteurs, enjambeurs).</li>
+                </ul>
+            </div>
+
+            <div class="rp-tab-content" id="tab-sfn-results">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-                    <div style="background:#fef2f2; padding:15px; border-radius:8px; text-align:center;">
-                        <div style="font-size:24px; font-weight:bold; color:#b91c1c;">31</div>
-                        <div style="font-size:10px; color:#7f1d1d;">Emplacements SFN ciblés</div>
+                    <div style="background:#fff7ed; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:24px; font-weight:bold; color:#c2410c;">29</div>
+                        <div style="font-size:10px; color:#9a3412;">Emplacements en AMC II</div>
                     </div>
-                    <div style="background:#f0fdf4; padding:15px; border-radius:8px; text-align:center;">
-                        <div style="font-size:14px; font-weight:bold; color:#15803d; margin-top:5px;">Fascines / Noues</div>
-                        <div style="font-size:10px; color:#14532d;">Typologie d'ouvrages</div>
+                    <div style="background:#fef2f2; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:24px; font-weight:bold; color:#b91c1c;">31 (+2)</div>
+                        <div style="font-size:10px; color:#7f1d1d;">Emplacements en AMC III</div>
                     </div>
                 </div>
-                <p class="rp-section-title">Principe d'implantation</p>
-                <p class="rp-description">L'identification de ces 31 sites résulte d'un croisement spatial sous QGIS : pentes > 5%, axes de ruissellement forts (Q10/Q20), et proximité d'enjeux vulnérables. L'objectif est de ralentir l'écoulement et de piéger les sédiments avant qu'ils n'atteignent les zones urbaines.</p>
+                <p class="rp-section-title">Implantation Cartographique</p>
+                <p class="rp-description">Les aménagements SFN sont positionnés stratégiquement le long du réseau de voirie et des chemins d'exploitation. Les simulations révèlent que le passage d'une condition d'humidité normale (AMC II) à une condition saturée (AMC III) nécessite l'implantation de 2 ouvrages supplémentaires pour contenir efficacement le ruissellement vicennal (T20).</p>
             </div>
+
         </div>
     </div>
 
 </aside>
 
-<!-- ========== BOTTOM BAR ========== -->
 <footer id="bottom-bar">
     <span class="bottom-version">Rouffach - Modélisation & Gestion intégrée du BV du Hohrain</span>
     <div class="bottom-attribution">
@@ -520,47 +630,41 @@ let map, basemapLight, basemapTopo, basemapSat;
 let currentView = 'contexte';
 let hoverInfoControl;
 
-// Dictionnaire pour stocker toutes nos couches Leaflet
 const layers = {
     communes: L.geoJSON(null, { style: { color: '#34495e', weight: 2, fillOpacity: 0.05, dashArray: '5,5' } }),
     hydro: L.geoJSON(null, { style: { color: '#3498db', weight: 2, opacity: 0.9 } }),
     bati: L.geoJSON(null, { style: { color: '#e74c3c', weight: 1, fillOpacity: 0.8 } }),
     ocs: L.geoJSON(null, { style: { color: '#27ae60', weight: 1, fillOpacity: 0.5 } }),
     scs: L.geoJSON(null, { style: { color: '#8e44ad', weight: 1, fillOpacity: 0.5 } }),
-    sfn: L.geoJSON(null, { 
+    
+    // NOUVELLES COUCHES SFN SEPAREES
+    sfnNormal: L.geoJSON(null, { 
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#d35400', color: '#fff', weight: 1.5, fillOpacity: 1 })
+    }),
+    sfnHumide: L.geoJSON(null, { 
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#c0392b', color: '#fff', weight: 1.5, fillOpacity: 1 })
     })
 };
-const axesLayers = {}; // Stockera dynamiquement les 24 couches de ruissellement
+const axesLayers = {}; 
 
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
-    // Fonds de plan
     basemapLight = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap France | &copy; OpenStreetMap contributors'});
     basemapTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
     basemapSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
 
-    // Carte centrée sur Rouffach
     map = L.map('map', { center: [47.957, 7.298], zoom: 14, layers: [basemapLight], zoomControl: false });
     L.control.zoom({ position: 'topleft' }).addTo(map);
     L.control.layers({ "Plan Clair": basemapLight, "Topographique": basemapTopo, "Satellite": basemapSat }).addTo(map);
 
-    // Initialiser le panneau d'information au survol
     setupHoverInfo();
-
-    // Associer les comportements des cases à cocher
     setupLayerBindings();
-    
-    // Lancer la lecture de l'OCS pour générer les graphiques
     initOcsChart();
-
-    // Lancer la vue par défaut
     switchView('contexte');
 }
 
-// ===== CHARGEMENT DYNAMIQUE DES COUCHES =====
 function bindLayer(checkboxId, layerObj, fileName, popupContentFunc) {
     const cb = document.getElementById(checkboxId);
     if (!cb) return;
@@ -584,28 +688,50 @@ function bindLayer(checkboxId, layerObj, fileName, popupContentFunc) {
     });
 }
 
+function getRunoffStyle(feature) {
+    const vol = feature.properties.volume_m3 || 0;
+    let color = '#0ea5e9'; 
+    let weight = 2;
+
+    if (vol > 1000) { color = '#4c1d95'; weight = 5; } 
+    else if (vol > 500) { color = '#3b82f6'; weight = 4; } 
+    else if (vol > 100) { color = '#2563eb'; weight = 3; } 
+
+    return { color: color, weight: weight, opacity: 0.9 };
+}
+
 function setupLayerBindings() {
-    // Les couches de base
     bindLayer('check-communes', layers.communes, 'Communes.geojson', f => `<b>Commune:</b> ${f.properties.NOM || 'Inconnu'}`);
     bindLayer('check-hydro', layers.hydro, 'hydro.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.nom_cours_d_eau || 'Inconnu'}`);
-    bindLayer('check-bati', layers.bati, 'bati.geojson', f => `<b>Bâtiment (BD Topo)</b>`);
+    bindLayer('check-bati', layers.bati, 'bati.geojson');
     bindLayer('check-ocs', layers.ocs, 'OCS.geojson');
     bindLayer('check-scs', layers.scs, 'SCS.geojson');
-    bindLayer('check-sfn', layers.sfn, 'SFN.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Fascine'}<br><b>Priorité:</b> ${f.properties.Priorite || 'Haute'}`);
+    
+    // LIAISON DES NOUVEAUX FICHIERS SFN
+    bindLayer('check-sfn-normal', layers.sfnNormal, 'SFN_Normal.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Déflecteur / Noue'} <br><b>Scénario:</b> AMC II (Normal)`);
+    bindLayer('check-sfn-humide', layers.sfnHumide, 'SFN_Humide.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Déflecteur / Noue'} <br><b>Scénario:</b> AMC III (Saturé)`);
 
-    // Les 24 axes de ruissellement
     document.querySelectorAll('.grid-checkboxes input[type="checkbox"]').forEach(cb => {
         cb.addEventListener('change', function() {
-            const id = this.id; // ex: ax-amc2-inf-q10
-            const fileName = 'Axes_' + id.replace('ax-', '').replace(/-/g, '_') + '.geojson';
+            const id = this.id; 
+            
+            const folder = id.includes('amc2') ? 'Ruissellement_Normal' : 'Ruissellement_Humide';
+            const cleanId = id.replace('ax-amc2-', '').replace('ax-amc3-', '').replace(/-/g, '_');
+            const fileName = folder + '/Axes_' + cleanId + '.geojson';
             
             if (this.checked) {
                 if (!axesLayers[id]) {
                     axesLayers[id] = L.geoJSON(null, { 
-                        style: { color: id.includes('amc3') ? '#d35400' : '#2980b9', weight: 2, opacity: 0.9, dashArray: '4,4' },
+                        style: (f) => getRunoffStyle(f),
                         onEachFeature: (f, l) => {
-                            l.on('mouseover', (e) => { e.target.setStyle({ weight: 4 }); hoverInfoControl.update(f.properties, 'Axe'); });
-                            l.on('mouseout', (e) => { e.target.setStyle({ weight: 2 }); hoverInfoControl.update(); });
+                            l.on('mouseover', (e) => { 
+                                e.target.setStyle({ weight: e.target.options.weight + 2, color: '#f1c40f' }); 
+                                hoverInfoControl.update(f.properties, 'Axe'); 
+                            });
+                            l.on('mouseout', (e) => { 
+                                e.target.setStyle(getRunoffStyle(f)); 
+                                hoverInfoControl.update(); 
+                            });
                         }
                     });
                     fetch(fileName).then(r=>r.json()).then(d => { axesLayers[id].addData(d); axesLayers[id].addTo(map); })
@@ -620,14 +746,15 @@ function setupLayerBindings() {
     });
 }
 
-// ===== INFO HOVER CONTROL =====
 function setupHoverInfo() {
     hoverInfoControl = L.control({ position: 'topright' });
     hoverInfoControl.onAdd = function() { this._div = L.DomUtil.create('div', 'info'); this.update(); return this._div; };
     hoverInfoControl.update = function(props, type) {
         if (!props) { this._div.innerHTML = '<h4>Infos</h4>Survolez un axe de ruissellement'; return; }
         if (type === 'Axe') {
+            const vol = props.volume_m3 ? parseFloat(props.volume_m3).toFixed(1) : '?';
             this._div.innerHTML = `<h4>Axe de ruissellement</h4>
+                <b>Volume estimé :</b> ${vol} m³<br>
                 <b>Vitesse est. :</b> ${props.vitesse || '?'} m/s<br>
                 <b>Pente :</b> ${props.pente || '?'} %`;
         }
@@ -635,20 +762,15 @@ function setupHoverInfo() {
     hoverInfoControl.addTo(map);
 }
 
-// ===== GESTION DES VUES (ONGLETS) =====
 function switchView(view) {
     currentView = view;
-    
-    // UI Header Tabs
     document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
 
-    // Left Sidebar
     document.getElementById('view-contexte').style.display = (view === 'contexte') ? 'block' : 'none';
     document.getElementById('view-ruissellement').style.display = (view === 'ruissellement') ? 'block' : 'none';
     document.getElementById('view-sfn').style.display = (view === 'sfn') ? 'block' : 'none';
 
-    // Right Panel
     document.getElementById('panel-contexte').style.display = (view === 'contexte') ? 'flex' : 'none';
     document.getElementById('panel-ruissellement').style.display = (view === 'ruissellement') ? 'flex' : 'none';
     document.getElementById('panel-sfn').style.display = (view === 'sfn') ? 'flex' : 'none';
@@ -694,9 +816,7 @@ function resetLayers() {
     });
 }
 
-// ===== GRAPHIQUES DYNAMIQUES (OCS & VIGNES) =====
 function initOcsChart() {
-    // On va chercher le fichier GeoJSON de l'OCS
     fetch('OCS.geojson')
         .then(response => response.json())
         .then(data => {
@@ -707,84 +827,45 @@ function initOcsChart() {
                 'Enherbée intégrale': 0
             };
 
-            // On parcourt chaque polygone de la couche
             data.features.forEach(f => {
                 const props = f.properties;
-                
-                // Si tu as un champ de surface dans ta table (ex: SURF_HA, surface, area), 
-                // le script l'utilise pour être précis. Sinon, il compte le nombre de polygones.
                 const weight = props.SURF_HA || props.surf_ha || props.AREA || props.area || props.surface || 1;
 
-                // 1. Tally pour le graphique OCS_1
                 const ocsVal = props.OCS_1;
                 if (ocsVal) {
                     if (!ocsCounts[ocsVal]) ocsCounts[ocsVal] = 0;
                     ocsCounts[ocsVal] += weight;
                 }
 
-                // 2. Tally pour le graphique des pratiques viticoles (EDS)
                 const edsVal = props.EDS;
                 if (edsVal === '0') edsCounts['Sol nu / Travail du sol'] += weight;
                 else if (edsVal === '1/2') edsCounts['Enherbée 1 rang sur 2'] += weight;
                 else if (edsVal === '1/1') edsCounts['Enherbée intégrale'] += weight;
             });
 
-            // --- GRAPHIQUE 1 : OCS_1 ---
             const ocsLabels = Object.keys(ocsCounts);
             const ocsData = Object.values(ocsCounts);
-            // Palette de couleurs pour l'OCS
             const ocsColors = ocsLabels.map((_, i) => ['#27ae60', '#f1c40f', '#e74c3c', '#3498db', '#9b59b6', '#e67e22', '#1abc9c', '#34495e'][i % 8]);
 
             const ctxOcs = document.getElementById('chart-ocs').getContext('2d');
             new Chart(ctxOcs, {
                 type: 'doughnut',
-                data: {
-                    labels: ocsLabels,
-                    datasets: [{
-                        data: ocsData,
-                        backgroundColor: ocsColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
-                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Math.round(ctx.raw)}` } }
-                    }
-                }
+                data: { labels: ocsLabels, datasets: [{ data: ocsData, backgroundColor: ocsColors, borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } } }
             });
 
-            // --- GRAPHIQUE 2 : EDS (Vignes) ---
             const edsLabels = Object.keys(edsCounts);
             const edsData = Object.values(edsCounts);
-            // Code couleur métier : Rouge (Sol nu = vulnérable), Orange (1/2), Vert (1/1 = résilient)
             const edsColors = ['#e74c3c', '#f39c12', '#2ecc71'];
 
             const ctxEds = document.getElementById('chart-eds').getContext('2d');
             new Chart(ctxEds, {
                 type: 'pie',
-                data: {
-                    labels: edsLabels,
-                    datasets: [{
-                        data: edsData,
-                        backgroundColor: edsColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
-                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Math.round(ctx.raw)}` } }
-                    }
-                }
+                data: { labels: edsLabels, datasets: [{ data: edsData, backgroundColor: edsColors, borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
             });
-
         })
-        .catch(err => {
-            console.warn("Erreur lors de la création des graphiques. Le fichier OCS.geojson est-il bien formaté et présent ? ", err);
-        });
+        .catch(err => { console.warn("Fichier OCS.geojson manquant pour les graphiques."); });
 }
 </script>
 </body>
