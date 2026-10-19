@@ -698,11 +698,11 @@ const layers = {
     
     // CORRECTION COULEURS SFN : Ajout du style explicite pour contrer le comportement par défaut de Leaflet (qui force le bleu si polygones/lignes)
     sfnNormal: L.geoJSON(null, { 
-        style: { color: '#000', fillColor: '#eab308', weight: 2, fillOpacity: 0.8 },
+        style: (f) => ({ color: '#eab308', weight: 3, fillColor: '#eab308', fillOpacity: 0.7 }),
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#eab308', color: '#000', weight: 2, fillOpacity: 1 })
     }),
     sfnHumide: L.geoJSON(null, { 
-        style: { color: '#000', fillColor: '#dc2626', weight: 2, fillOpacity: 0.8 },
+        style: (f) => ({ color: '#dc2626', weight: 3, fillColor: '#dc2626', fillOpacity: 0.7 }),
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#dc2626', color: '#000', weight: 2, fillOpacity: 1 })
     })
 };
@@ -938,6 +938,7 @@ function initOcsChart() {
             const edsLabels = Object.keys(edsCounts);
             const edsData = Object.values(edsCounts);
             const edsColors = ['#e74c3c', '#f39c12', '#2ecc71'];
+
             const ctxEds = document.getElementById('chart-eds').getContext('2d');
             new Chart(ctxEds, {
                 type: 'pie',
