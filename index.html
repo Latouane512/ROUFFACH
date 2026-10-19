@@ -183,7 +183,6 @@
         .data-table tr:last-child td { border-bottom: none; }
         .data-table .dt-type { font-weight: 600; color: var(--color-primary); }
 
-        /* Bouton Excel (Lien direct) */
         .btn-excel {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%; margin-top: 20px; padding: 12px; text-decoration: none;
@@ -287,14 +286,14 @@
                 </div>
                 <div class="layer-group-body">
                     <div class="layer-item">
-                        <div class="layer-swatch" style="background:#27ae60;"></div>
+                        <div class="layer-swatch" style="background:linear-gradient(135deg, #a6da59, #27ae60, #f1c40f);"></div>
                         <input type="checkbox" id="check-ocs">
-                        <label for="check-ocs">Occupation du Sol (OCS)</label>
+                        <label for="check-ocs">Occupation du Sol (OCS_1_2)</label>
                     </div>
                     <div class="layer-item">
-                        <div class="layer-swatch" style="background:#8e44ad;"></div>
+                        <div class="layer-swatch" style="background:linear-gradient(135deg, #3498db, #f1c40f, #e74c3c);"></div>
                         <input type="checkbox" id="check-scs">
-                        <label for="check-scs">Groupes Hydrologiques (SCS)</label>
+                        <label for="check-scs">Sols & Infiltration (SolSCS)</label>
                     </div>
                 </div>
             </div>
@@ -372,9 +371,9 @@
                         <input type="checkbox" id="check-sfn-normal">
                         <label for="check-sfn-normal">SFN - AMC II Normal (29 sites)</label>
                     </div>
-                    <!-- SFN Humide : Rose Magenta -->
+                    <!-- SFN Humide : Rouge (Urgence) -->
                     <div class="layer-item">
-                        <div class="layer-swatch" style="background:#ec4899; border-radius:50%; border:1px solid #000;"></div>
+                        <div class="layer-swatch" style="background:#dc2626; border-radius:50%; border:1px solid #000;"></div>
                         <input type="checkbox" id="check-sfn-humide" checked>
                         <label for="check-sfn-humide">SFN - AMC III Saturé (31 sites)</label>
                     </div>
@@ -393,6 +392,23 @@
             <div style="display:flex; align-items:center; gap:8px;"><div style="width:12px;height:3px;background:#3498db;"></div> Réseau hydrographique</div>
             
             <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
+                <b>Occupation du Sol</b>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#a6da59;"></div> Vignes</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#22c55e;"></div> Forêt / Boisé</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#27ae60;"></div> Herbe / Prairie</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#ef4444;"></div> Urbain / Bâti</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#95a5a6;"></div> Caillouteux</div>
+            </div>
+
+            <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
+                <b>Groupes de Sols (SCS)</b>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#3b82f6;"></div> A - Très perméable</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#22c55e;"></div> B - Perméable</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#f59e0b;"></div> C - Modérément imperméable</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#ef4444;"></div> D - Imperméable (Risque)</div>
+            </div>
+
+            <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
                 <b>Axes de ruissellement (Volume m³)</b>
                 <div class="gradient-bar"></div>
                 <div class="gradient-labels">
@@ -403,7 +419,7 @@
             </div>
 
             <div style="display:flex; align-items:center; gap:8px; margin-top:15px;"><div style="width:10px;height:10px;background:#eab308;border-radius:50%;border:1px solid #000;"></div> Aménagement SFN (AMC II)</div>
-            <div style="display:flex; align-items:center; gap:8px; margin-top:5px;"><div style="width:10px;height:10px;background:#ec4899;border-radius:50%;border:1px solid #000;"></div> Aménagement SFN (AMC III)</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:5px;"><div style="width:10px;height:10px;background:#dc2626;border-radius:50%;border:1px solid #000;"></div> Aménagement SFN (AMC III)</div>
         </div>
     </div>
 
@@ -476,12 +492,12 @@
             </div>
             
             <div class="rp-tab-content" id="tab-ctx-stats">
-                <p class="rp-section-title">Occupation du Sol (Champ: OCS_1)</p>
+                <p class="rp-section-title">Occupation du Sol (Champ: OCS_1_2)</p>
                 <div style="height:180px; margin-top:10px;">
                     <canvas id="chart-ocs"></canvas>
                 </div>
 
-                <p class="rp-section-title" style="margin-top:25px;">Pratiques Viticoles (Champ: EDS)</p>
+                <p class="rp-section-title" style="margin-top:25px;">Pratiques Viticoles (Champ: EDS_2)</p>
                 <div style="height:180px; margin-top:10px;">
                     <canvas id="chart-eds"></canvas>
                 </div>
@@ -523,7 +539,6 @@
             <div class="rp-tab-content" id="tab-rui-result">
                 <p class="rp-section-title">Comparatif des Conditions AMC</p>
                 
-                <!-- INTEGRATION DU SCHEMA DU RUISSELLEMENT (IMAGE GITHUB) -->
                 <figure style="margin: 15px 0;">
                     <img src="schema_ruissellement.jpg" alt="Schéma des types de ruissellement" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
                 </figure>
@@ -570,7 +585,6 @@
                 <p class="rp-section-title">Alternatives SFN en milieu viticole</p>
                 <p class="rp-description" style="margin-bottom:15px;">Ces méthodes visent à ralentir les écoulements et favoriser l'infiltration à la source, avant que l'eau ne rejoigne le réseau de routes :</p>
                 
-                <!-- INTEGRATION DES DEUX PHOTOS DEMANDEES -->
                 <div style="margin-top: 15px;">
                     <figure style="margin-bottom: 20px;">
                         <img src="deflecteur.jpg" alt="Déflecteur transversal (water-bar)" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
@@ -591,9 +605,9 @@
                         <div style="font-size:24px; font-weight:bold; color:#a16207;">29</div>
                         <div style="font-size:10px; color:#854d0e;">Emplacements en AMC II</div>
                     </div>
-                    <div style="background:#fdf2f8; padding:15px; border-radius:8px; text-align:center;">
-                        <div style="font-size:24px; font-weight:bold; color:#be185d;">31 (+2)</div>
-                        <div style="font-size:10px; color:#9d174d;">Emplacements en AMC III</div>
+                    <div style="background:#fef2f2; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:24px; font-weight:bold; color:#b91c1c;">31 (+2)</div>
+                        <div style="font-size:10px; color:#7f1d1d;">Emplacements en AMC III</div>
                     </div>
                 </div>
                 <p class="rp-section-title">Implantation Cartographique</p>
@@ -623,15 +637,41 @@ const layers = {
     communes: L.geoJSON(null, { style: { color: '#34495e', weight: 2, fillOpacity: 0.05, dashArray: '5,5' } }),
     hydro: L.geoJSON(null, { style: { color: '#3498db', weight: 2, opacity: 0.9 } }),
     bati: L.geoJSON(null, { style: { color: '#e74c3c', weight: 1, fillOpacity: 0.8 } }),
-    ocs: L.geoJSON(null, { style: { color: '#27ae60', weight: 1, fillOpacity: 0.5 } }),
-    scs: L.geoJSON(null, { style: { color: '#8e44ad', weight: 1, fillOpacity: 0.5 } }),
+    
+    // Style Dynamique pour Occupation du Sol (OCS_1_2)
+    ocs: L.geoJSON(null, { 
+        style: (f) => {
+            let col = '#bdc3c7'; // Gris par défaut
+            let val = String(f.properties.OCS_1_2 || '').toLowerCase();
+            if (val.includes('vigne')) col = '#a6da59';
+            else if (val.includes('forêt') || val.includes('foret') || val.includes('bois')) col = '#22c55e';
+            else if (val.includes('urbain') || val.includes('bâti') || val.includes('artificiel')) col = '#ef4444';
+            else if (val.includes('herbe') || val.includes('prairie')) col = '#27ae60';
+            else if (val.includes('caillou')) col = '#95a5a6';
+            else if (val.includes('eau')) col = '#3b82f6';
+            return { color: '#444', weight: 0.5, fillColor: col, fillOpacity: 0.6 };
+        }
+    }),
+    
+    // Style Dynamique pour les Sols (SCS)
+    scs: L.geoJSON(null, { 
+        style: (f) => {
+            let col = '#8e44ad'; // Par défaut
+            let val = String(f.properties.SolSCS || '').toUpperCase();
+            if (val.includes('A')) col = '#3b82f6'; // Très perméable
+            else if (val.includes('B')) col = '#22c55e'; // Perméable
+            else if (val.includes('C')) col = '#f59e0b'; // Modéré
+            else if (val.includes('D')) col = '#ef4444'; // Imperméable (Risque)
+            return { color: '#444', weight: 0.5, fillColor: col, fillOpacity: 0.6 };
+        }
+    }),
     
     // NOUVELLES COULEURS SFN
     sfnNormal: L.geoJSON(null, { 
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#eab308', color: '#000', weight: 2, fillOpacity: 1 })
     }),
     sfnHumide: L.geoJSON(null, { 
-        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#ec4899', color: '#000', weight: 2, fillOpacity: 1 })
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#dc2626', color: '#000', weight: 2, fillOpacity: 1 })
     })
 };
 const axesLayers = {}; 
@@ -639,8 +679,8 @@ const axesLayers = {};
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
-    basemapLight = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap France | &copy; OpenStreetMap contributors'});
+    basemapLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap | &copy; CARTO'});
     basemapTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
     basemapSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
 
@@ -692,9 +732,9 @@ function getRunoffStyle(feature) {
 function setupLayerBindings() {
     bindLayer('check-communes', layers.communes, 'Communes.geojson', f => `<b>Commune:</b> ${f.properties.NOM || 'Inconnu'}`);
     bindLayer('check-hydro', layers.hydro, 'hydro.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.nom_cours_d_eau || 'Inconnu'}`);
-    bindLayer('check-bati', layers.bati, 'bati.geojson');
-    bindLayer('check-ocs', layers.ocs, 'OCS.geojson');
-    bindLayer('check-scs', layers.scs, 'SCS.geojson');
+    bindLayer('check-bati', layers.bati, 'bati.geojson', f => `<b>Bâtiment (BD Topo)</b>`);
+    bindLayer('check-ocs', layers.ocs, 'OCS.geojson', f => `<b>Occupation du sol:</b> ${f.properties.OCS_1_2 || 'Non défini'}`);
+    bindLayer('check-scs', layers.scs, 'SCS.geojson', f => `<b>Groupe hydrologique (SCS):</b> ${f.properties.SolSCS || 'Non défini'}`);
     
     bindLayer('check-sfn-normal', layers.sfnNormal, 'SFN_Normal.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Déflecteur / Noue'} <br><b>Scénario:</b> AMC II (Normal)`);
     bindLayer('check-sfn-humide', layers.sfnHumide, 'SFN_Humide.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Déflecteur / Noue'} <br><b>Scénario:</b> AMC III (Saturé)`);
@@ -704,8 +744,6 @@ function setupLayerBindings() {
             const id = this.id; 
             
             const folder = id.includes('amc2') ? 'Ruissellement_Normal' : 'Ruissellement_Humide';
-            
-            // On remplace 'ax-' par 'Axes_' et on transforme les tirets restants en underscores
             const fileNameBase = id.replace(/^ax-/, 'Axes_').replace(/-/g, '_');
             const fileName = folder + '/' + fileNameBase + '.geojson';
             
@@ -821,27 +859,40 @@ function initOcsChart() {
                 const props = f.properties;
                 const weight = props.SURF_HA || props.surf_ha || props.AREA || props.area || props.surface || 1;
 
-                const ocsVal = props.OCS_1;
+                const ocsVal = props.OCS_1_2;
                 if (ocsVal) {
-                    if (!ocsCounts[ocsVal]) ocsCounts[ocsVal] = 0;
-                    ocsCounts[ocsVal] += weight;
+                    const label = ocsVal.charAt(0).toUpperCase() + ocsVal.slice(1);
+                    if (!ocsCounts[label]) ocsCounts[label] = 0;
+                    ocsCounts[label] += weight;
                 }
 
-                const edsVal = props.EDS;
-                if (edsVal === '0') edsCounts['Sol nu / Travail du sol'] += weight;
-                else if (edsVal === '1/2') edsCounts['Enherbée 1 rang sur 2'] += weight;
-                else if (edsVal === '1/1') edsCounts['Enherbée intégrale'] += weight;
+                // Filtrer spécifiquement pour ne compter les pratiques que dans les vignes
+                if (String(props.OCS_1_2 || '').toLowerCase().includes('vigne')) {
+                    const edsVal = String(props.EDS_2 || '');
+                    if (edsVal === '0') edsCounts['Sol nu / Travail du sol'] += weight;
+                    else if (edsVal === '1/2') edsCounts['Enherbée 1 rang sur 2'] += weight;
+                    else if (edsVal === '1/1') edsCounts['Enherbée intégrale'] += weight;
+                }
             });
 
             const ocsLabels = Object.keys(ocsCounts);
             const ocsData = Object.values(ocsCounts);
-            const ocsColors = ocsLabels.map((_, i) => ['#27ae60', '#f1c40f', '#e74c3c', '#3498db', '#9b59b6', '#e67e22', '#1abc9c', '#34495e'][i % 8]);
+            // Palette pour l'OCS
+            const ocsColors = ocsLabels.map(l => {
+                let lower = l.toLowerCase();
+                if (lower.includes('vigne')) return '#a6da59';
+                if (lower.includes('forêt') || lower.includes('bois')) return '#22c55e';
+                if (lower.includes('urbain')) return '#ef4444';
+                if (lower.includes('herbe') || lower.includes('prairie')) return '#27ae60';
+                if (lower.includes('caillou')) return '#95a5a6';
+                return '#f1c40f'; // Defaut Agricole autre
+            });
 
             const ctxOcs = document.getElementById('chart-ocs').getContext('2d');
             new Chart(ctxOcs, {
                 type: 'doughnut',
                 data: { labels: ocsLabels, datasets: [{ data: ocsData, backgroundColor: ocsColors, borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Math.round(ctx.raw)}` } } } }
             });
 
             const edsLabels = Object.keys(edsCounts);
@@ -852,7 +903,7 @@ function initOcsChart() {
             new Chart(ctxEds, {
                 type: 'pie',
                 data: { labels: edsLabels, datasets: [{ data: edsData, backgroundColor: edsColors, borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Math.round(ctx.raw)}` } } } }
             });
         })
         .catch(err => { console.warn("Fichier OCS.geojson manquant pour les graphiques."); });
