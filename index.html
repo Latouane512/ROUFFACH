@@ -208,7 +208,6 @@
         }
         .info h4 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--color-text); border-bottom: 2px solid var(--color-primary); padding-bottom: 6px; }
 
-        /* Gradient de la légende ruissellement */
         .gradient-bar {
             height: 8px; width: 100%; border-radius: 4px; margin-top: 4px;
             background: linear-gradient(to right, #0ea5e9, #3b82f6, #4c1d95);
@@ -290,8 +289,15 @@
                         <input type="checkbox" id="check-ocs">
                         <label for="check-ocs">Occupation du Sol (OCS_1_2)</label>
                     </div>
+                    <!-- Nouvelle couche Pratiques Viticoles ajoutée ici -->
                     <div class="layer-item">
-                        <div class="layer-swatch" style="background:linear-gradient(135deg, #3498db, #f1c40f, #e74c3c);"></div>
+                        <div class="layer-swatch" style="background:linear-gradient(135deg, #e74c3c, #f39c12, #2ecc71);"></div>
+                        <input type="checkbox" id="check-eds">
+                        <label for="check-eds">Pratiques Viticoles (EDS_2)</label>
+                    </div>
+                    <div class="layer-item">
+                        <!-- Couleurs modifiées pour la vignette SCS -->
+                        <div class="layer-swatch" style="background:linear-gradient(135deg, #fcd34d, #ea580c, #b91c1c);"></div>
                         <input type="checkbox" id="check-scs">
                         <label for="check-scs">Sols & Infiltration (SolSCS)</label>
                     </div>
@@ -400,12 +406,21 @@
                 <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#95a5a6;"></div> Caillouteux</div>
             </div>
 
+            <!-- Ajout des pratiques viticoles dans la légende -->
+            <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
+                <b>Pratiques Viticoles (EDS_2)</b>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#e74c3c;"></div> Sol nu / Travail du sol (0)</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#f39c12;"></div> Enherbée 1 rang sur 2 (1/2)</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#2ecc71;"></div> Enherbée intégrale (1/1)</div>
+            </div>
+
             <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
                 <b>Groupes de Sols (SCS)</b>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#3b82f6;"></div> A - Très perméable</div>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#22c55e;"></div> B - Perméable</div>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#f59e0b;"></div> C - Modérément imperméable</div>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#ef4444;"></div> D - Imperméable (Risque)</div>
+                <!-- Nouvelles couleurs pour la légende SCS (Dégradé rouge vers orange clair) -->
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#fcd34d;"></div> A - Très perméable</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#f97316;"></div> B - Perméable</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#ea580c;"></div> C - Modérément imperméable</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#b91c1c;"></div> D - Imperméable (Risque)</div>
             </div>
 
             <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
@@ -540,7 +555,7 @@
                 <p class="rp-section-title">Comparatif des Conditions AMC</p>
                 
                 <figure style="margin: 15px 0;">
-                    <img src="schema_ruissellement.jpg" alt="Schéma des types de ruissellement" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
+                    <img src="schema_ruissellement.jpg" alt="Schéma des types de ruissellement" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;" onerror="this.src='https://placehold.co/600x400/eeeeee/666666?text=Schema+Ruissellement'">
                 </figure>
 
                 <p class="rp-section-title">Constats sur le bassin</p>
@@ -587,12 +602,12 @@
                 
                 <div style="margin-top: 15px;">
                     <figure style="margin-bottom: 20px;">
-                        <img src="deflecteur.jpg" alt="Déflecteur transversal (water-bar)" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
+                        <img src="deflecteur.jpg" alt="Déflecteur transversal (water-bar)" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;" onerror="this.src='https://placehold.co/600x400/eeeeee/666666?text=Deflecteur'">
                         <figcaption style="font-size: 10px; color: #6b7280; text-align: center; margin-top: 6px; line-height: 1.4;">Exemple de déflecteur transversal (water-bar) pour le renvoi latéral des écoulements sur piste en forte pente<br><i>(Source : The Kerr Center for Sustainable Agriculture)</i></figcaption>
                     </figure>
                     
                     <figure style="margin-bottom: 20px;">
-                        <img src="radier.jpg" alt="Radier de pierres rustique" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;">
+                        <img src="radier.jpg" alt="Radier de pierres rustique" style="width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;" onerror="this.src='https://placehold.co/600x400/eeeeee/666666?text=Radier'">
                         <figcaption style="font-size: 10px; color: #6b7280; text-align: center; margin-top: 6px; line-height: 1.4;">Aménagement d'un radier de pierres rustique favorisant le ralentissement hydraulique sur axe de circulation<br><i>(Source : Green Mountain Club)</i></figcaption>
                     </figure>
                 </div>
@@ -652,25 +667,42 @@ const layers = {
             return { color: '#444', weight: 0.5, fillColor: col, fillOpacity: 0.6 };
         }
     }),
-    
-    // Style Dynamique pour les Sols (SCS)
-    scs: L.geoJSON(null, { 
+
+    // NOUVELLE COUCHE : Pratiques viticoles (EDS_2) basée sur le fichier OCS
+    eds: L.geoJSON(null, {
+        // Optionnel : on ne filtre que si c'est de la vigne pour ne pas afficher le reste
+        filter: (f) => String(f.properties.OCS_1_2 || '').toLowerCase().includes('vigne'),
         style: (f) => {
-            let col = '#8e44ad'; // Par défaut
-            let val = String(f.properties.SolSCS || '').toUpperCase();
-            if (val.includes('A')) col = '#3b82f6'; // Très perméable
-            else if (val.includes('B')) col = '#22c55e'; // Perméable
-            else if (val.includes('C')) col = '#f59e0b'; // Modéré
-            else if (val.includes('D')) col = '#ef4444'; // Imperméable (Risque)
-            return { color: '#444', weight: 0.5, fillColor: col, fillOpacity: 0.6 };
+            let col = 'transparent'; // Par défaut transparent
+            let val = String(f.properties.EDS_2 || '');
+            if (val === '0') col = '#e74c3c'; // Sol nu : Rouge
+            else if (val === '1/2') col = '#f39c12'; // 1 sur 2 : Orange
+            else if (val === '1/1') col = '#2ecc71'; // Intégral : Vert
+            
+            return { color: '#444', weight: 0.5, fillColor: col, fillOpacity: 0.8, opacity: col === 'transparent' ? 0 : 1 };
         }
     }),
     
-    // NOUVELLES COULEURS SFN
+    // Style Dynamique modifié pour les Sols (SCS) -> Dégradé de Rouge à Orange
+    scs: L.geoJSON(null, { 
+        style: (f) => {
+            let col = '#bdc3c7'; // Par défaut gris
+            let val = String(f.properties.SolSCS || '').toUpperCase();
+            if (val.includes('A')) col = '#fcd34d'; // Très perméable (Orange très clair)
+            else if (val.includes('B')) col = '#f97316'; // Perméable (Orange)
+            else if (val.includes('C')) col = '#ea580c'; // Modéré (Rouge-Orange)
+            else if (val.includes('D')) col = '#b91c1c'; // Imperméable (Rouge foncé)
+            return { color: '#444', weight: 0.5, fillColor: col, fillOpacity: 0.7 };
+        }
+    }),
+    
+    // CORRECTION COULEURS SFN : Ajout du style explicite pour contrer le comportement par défaut de Leaflet (qui force le bleu si polygones/lignes)
     sfnNormal: L.geoJSON(null, { 
+        style: { color: '#000', fillColor: '#eab308', weight: 2, fillOpacity: 0.8 },
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#eab308', color: '#000', weight: 2, fillOpacity: 1 })
     }),
     sfnHumide: L.geoJSON(null, { 
+        style: { color: '#000', fillColor: '#dc2626', weight: 2, fillOpacity: 0.8 },
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#dc2626', color: '#000', weight: 2, fillOpacity: 1 })
     })
 };
@@ -679,8 +711,8 @@ const axesLayers = {};
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
-     basemapLight = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap France | &copy; OpenStreetMap contributors'});
+     basemapLight = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap France | &copy; OpenStreetMap contributors'});
     basemapTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
     basemapSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
 
@@ -692,6 +724,13 @@ function initApp() {
     setupLayerBindings();
     initOcsChart();
     switchView('contexte');
+
+    // CORRECTION AFFICHAGE INITIAL: Forcer l'événement "change" sur les cases déjà cochées au chargement
+    setTimeout(() => {
+        document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+            cb.dispatchEvent(new Event('change'));
+        });
+    }, 100);
 }
 
 function bindLayer(checkboxId, layerObj, fileName, popupContentFunc) {
@@ -734,6 +773,7 @@ function setupLayerBindings() {
     bindLayer('check-hydro', layers.hydro, 'hydro.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.nom_cours_d_eau || 'Inconnu'}`);
     bindLayer('check-bati', layers.bati, 'bati.geojson', f => `<b>Bâtiment (BD Topo)</b>`);
     bindLayer('check-ocs', layers.ocs, 'OCS.geojson', f => `<b>Occupation du sol:</b> ${f.properties.OCS_1_2 || 'Non défini'}`);
+    bindLayer('check-eds', layers.eds, 'OCS.geojson', f => `<b>Pratiques viticoles (EDS_2):</b> ${f.properties.EDS_2 || 'Non défini'}`);
     bindLayer('check-scs', layers.scs, 'SCS.geojson', f => `<b>Groupe hydrologique (SCS):</b> ${f.properties.SolSCS || 'Non défini'}`);
     
     bindLayer('check-sfn-normal', layers.sfnNormal, 'SFN_Normal.geojson', f => `<b>Type d'ouvrage:</b> ${f.properties.Type || 'Déflecteur / Noue'} <br><b>Scénario:</b> AMC II (Normal)`);
@@ -898,7 +938,6 @@ function initOcsChart() {
             const edsLabels = Object.keys(edsCounts);
             const edsData = Object.values(edsCounts);
             const edsColors = ['#e74c3c', '#f39c12', '#2ecc71'];
-
             const ctxEds = document.getElementById('chart-eds').getContext('2d');
             new Chart(ctxEds, {
                 type: 'pie',
