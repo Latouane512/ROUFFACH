@@ -279,7 +279,8 @@
 
             <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
-                    <svg class="group-icon" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2"><path d="M2 12h20M12 2v20"/></svg>
+                    <!-- LOGO MODIFIE : Feuille / Nature -->
+                    <svg class="group-icon" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2"><path d="M11 20A7 7 0 0 1 4 13c0-3.5 3-7 8-11 5 4 8 7.5 8 11a7 7 0 0 1-7 7v0z"></path><path d="M12 22v-9"></path></svg>
                     <span class="group-title">Caractéristiques du Milieu</span>
                     <span class="group-chevron">&#9654;</span>
                 </div>
@@ -289,14 +290,12 @@
                         <input type="checkbox" id="check-ocs">
                         <label for="check-ocs">Occupation du Sol (OCS_1_2)</label>
                     </div>
-                    <!-- Nouvelle couche Pratiques Viticoles ajoutée ici -->
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:linear-gradient(135deg, #e74c3c, #f39c12, #2ecc71);"></div>
                         <input type="checkbox" id="check-eds">
                         <label for="check-eds">Pratiques Viticoles (EDS_2)</label>
                     </div>
                     <div class="layer-item">
-                        <!-- Couleurs modifiées pour la vignette SCS -->
                         <div class="layer-swatch" style="background:linear-gradient(135deg, #fcd34d, #ea580c, #b91c1c);"></div>
                         <input type="checkbox" id="check-scs">
                         <label for="check-scs">Sols & Infiltration (SolSCS)</label>
@@ -336,7 +335,8 @@
             
             <div class="layer-group open">
                 <div class="layer-group-header" onclick="toggleGroup(this)">
-                    <svg class="group-icon" viewBox="0 0 24 24" fill="none" stroke="#d35400" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <!-- LOGO MODIFIE : Goutte d'eau (Saturé) -->
+                    <svg class="group-icon" viewBox="0 0 24 24" fill="none" stroke="#d35400" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
                     <span class="group-title">AMC III (Saturé)</span>
                     <span class="group-chevron">&#9654;</span>
                 </div>
@@ -371,13 +371,11 @@
                     <span class="group-chevron">&#9654;</span>
                 </div>
                 <div class="layer-group-body">
-                    <!-- SFN Normal : Jaune Or -->
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#eab308; border-radius:50%; border:1px solid #000;"></div>
                         <input type="checkbox" id="check-sfn-normal">
                         <label for="check-sfn-normal">SFN - AMC II Normal (29 sites)</label>
                     </div>
-                    <!-- SFN Humide : Rouge (Urgence) -->
                     <div class="layer-item">
                         <div class="layer-swatch" style="background:#dc2626; border-radius:50%; border:1px solid #000;"></div>
                         <input type="checkbox" id="check-sfn-humide" checked>
@@ -399,14 +397,14 @@
             
             <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
                 <b>Occupation du Sol</b>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#a6da59;"></div> Vignes</div>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#22c55e;"></div> Forêt / Boisé</div>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#27ae60;"></div> Herbe / Prairie</div>
-                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#ef4444;"></div> Urbain / Bâti</div>
+                <!-- LEGENDE MODIFIEE -->
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#22c55e;"></div> Forêt</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#27ae60;"></div> Herbe</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#a6da59;"></div> Vigne</div>
+                <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#000000;"></div> Zones urbanisées</div>
                 <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#95a5a6;"></div> Caillouteux</div>
             </div>
 
-            <!-- Ajout des pratiques viticoles dans la légende -->
             <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
                 <b>Pratiques Viticoles (EDS_2)</b>
                 <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#e74c3c;"></div> Sol nu / Travail du sol (0)</div>
@@ -416,7 +414,6 @@
 
             <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
                 <b>Groupes de Sols (SCS)</b>
-                <!-- Nouvelles couleurs pour la légende SCS (Dégradé rouge vers orange clair) -->
                 <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#fcd34d;"></div> A - Très perméable</div>
                 <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#f97316;"></div> B - Perméable</div>
                 <div style="display:flex; align-items:center; gap:8px;"><div style="width:10px;height:10px;background:#ea580c;"></div> C - Modérément imperméable</div>
@@ -653,14 +650,14 @@ const layers = {
     hydro: L.geoJSON(null, { style: { color: '#3498db', weight: 2, opacity: 0.9 } }),
     bati: L.geoJSON(null, { style: { color: '#e74c3c', weight: 1, fillOpacity: 0.8 } }),
     
-    // Style Dynamique pour Occupation du Sol (OCS_1_2)
+    // Style Dynamique pour Occupation du Sol (OCS_1_2) - ZONE URBANISÉE EN NOIR
     ocs: L.geoJSON(null, { 
         style: (f) => {
             let col = '#bdc3c7'; // Gris par défaut
             let val = String(f.properties.OCS_1_2 || '').toLowerCase();
             if (val.includes('vigne')) col = '#a6da59';
             else if (val.includes('forêt') || val.includes('foret') || val.includes('bois')) col = '#22c55e';
-            else if (val.includes('urbain') || val.includes('bâti') || val.includes('artificiel')) col = '#ef4444';
+            else if (val.includes('urbain') || val.includes('bâti') || val.includes('artificiel') || val.includes('urbanisée') || val.includes('urbanisee')) col = '#000000';
             else if (val.includes('herbe') || val.includes('prairie')) col = '#27ae60';
             else if (val.includes('caillou')) col = '#95a5a6';
             else if (val.includes('eau')) col = '#3b82f6';
@@ -670,7 +667,6 @@ const layers = {
 
     // NOUVELLE COUCHE : Pratiques viticoles (EDS_2) basée sur le fichier OCS
     eds: L.geoJSON(null, {
-        // Optionnel : on ne filtre que si c'est de la vigne pour ne pas afficher le reste
         filter: (f) => String(f.properties.OCS_1_2 || '').toLowerCase().includes('vigne'),
         style: (f) => {
             let col = 'transparent'; // Par défaut transparent
@@ -696,7 +692,6 @@ const layers = {
         }
     }),
     
-    // CORRECTION COULEURS SFN : Ajout du style explicite pour contrer le comportement par défaut de Leaflet (qui force le bleu si polygones/lignes)
     sfnNormal: L.geoJSON(null, { 
         style: (f) => ({ color: '#eab308', weight: 3, fillColor: '#eab308', fillOpacity: 0.7 }),
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: '#eab308', color: '#000', weight: 2, fillOpacity: 1 })
@@ -725,7 +720,6 @@ function initApp() {
     initOcsChart();
     switchView('contexte');
 
-    // CORRECTION AFFICHAGE INITIAL: Forcer l'événement "change" sur les cases déjà cochées au chargement
     setTimeout(() => {
         document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
             cb.dispatchEvent(new Event('change'));
@@ -770,7 +764,8 @@ function getRunoffStyle(feature) {
 
 function setupLayerBindings() {
     bindLayer('check-communes', layers.communes, 'Communes.geojson', f => `<b>Commune:</b> ${f.properties.NOM || 'Inconnu'}`);
-    bindLayer('check-hydro', layers.hydro, 'hydro.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.nom_cours_d_eau || 'Inconnu'}`);
+    // MODIFICATION POPUP HYDROGRAPHIE
+    bindLayer('check-hydro', layers.hydro, 'hydro.geojson', f => `<b>Tronçon hydro:</b> ${f.properties.NOM || 'Inconnu'}`);
     bindLayer('check-bati', layers.bati, 'bati.geojson', f => `<b>Bâtiment (BD Topo)</b>`);
     bindLayer('check-ocs', layers.ocs, 'OCS.geojson', f => `<b>Occupation du sol:</b> ${f.properties.OCS_1_2 || 'Non défini'}`);
     bindLayer('check-eds', layers.eds, 'OCS.geojson', f => `<b>Pratiques viticoles (EDS_2):</b> ${f.properties.EDS_2 || 'Non défini'}`);
@@ -821,10 +816,9 @@ function setupHoverInfo() {
         if (!props) { this._div.innerHTML = '<h4>Infos</h4>Survolez un axe de ruissellement'; return; }
         if (type === 'Axe') {
             const vol = props.volume_m3 ? parseFloat(props.volume_m3).toFixed(1) : '?';
+            // VITESSE ET PENTE RETIRÉES DU POPUP
             this._div.innerHTML = `<h4>Axe de ruissellement</h4>
-                <b>Volume estimé :</b> ${vol} m³<br>
-                <b>Vitesse est. :</b> ${props.vitesse || '?'} m/s<br>
-                <b>Pente :</b> ${props.pente || '?'} %`;
+                <b>Volume estimé :</b> ${vol} m³`;
         }
     };
     hoverInfoControl.addTo(map);
@@ -906,7 +900,6 @@ function initOcsChart() {
                     ocsCounts[label] += weight;
                 }
 
-                // Filtrer spécifiquement pour ne compter les pratiques que dans les vignes
                 if (String(props.OCS_1_2 || '').toLowerCase().includes('vigne')) {
                     const edsVal = String(props.EDS_2 || '');
                     if (edsVal === '0') edsCounts['Sol nu / Travail du sol'] += weight;
@@ -917,12 +910,12 @@ function initOcsChart() {
 
             const ocsLabels = Object.keys(ocsCounts);
             const ocsData = Object.values(ocsCounts);
-            // Palette pour l'OCS
+            // Palette pour l'OCS - GRAPH CHART.JS (Zones urbanisées EN NOIR)
             const ocsColors = ocsLabels.map(l => {
                 let lower = l.toLowerCase();
                 if (lower.includes('vigne')) return '#a6da59';
                 if (lower.includes('forêt') || lower.includes('bois')) return '#22c55e';
-                if (lower.includes('urbain')) return '#ef4444';
+                if (lower.includes('urbain') || lower.includes('urbanisee') || lower.includes('urbanisée')) return '#000000';
                 if (lower.includes('herbe') || lower.includes('prairie')) return '#27ae60';
                 if (lower.includes('caillou')) return '#95a5a6';
                 return '#f1c40f'; // Defaut Agricole autre
